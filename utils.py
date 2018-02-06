@@ -1,6 +1,5 @@
 from struct import unpack
 
-
 def unsigned_int(_bytes, pointer):
     return unpack('I', _bytes[pointer:pointer + 4])[0]
 

@@ -29,7 +29,7 @@ def threp_cut(decodedata, work):
     info = {'stages': {}, 'stage': None,
             'character': None, 'ctype': None, 'rank': None, 'clear': None,}
 
-    #f=open('rep143.txt', 'wb')
+    #f=open('de.txt', 'wb')
     #f.write(decodedata)
     #f.close()
 
@@ -164,9 +164,32 @@ def threp_output(info, work):
     return output
 
 def load(file):
-    file, buffer, flength = entry(file)
-    decodedata, work = threp_decodedata(buffer)
-    return threp_output(threp_cut(decodedata, work), work)
+    try:
+        file, buffer, flength = entry(file)
+        decodedata, work = threp_decodedata(buffer)
+        replay_info = threp_output(threp_cut(decodedata, work), work)
+        if len(replay_info['kb_action'])==0:
+            # 解决th13和14文件头一样问题
+            if work=='13':
+                work='14'
+                return threp_output(threp_cut(decodedata, work), work)
+            elif work=='14':
+                work='13'
+                return threp_output(threp_cut(decodedata, work), work)
+            else:
+                raise Exception("Failed when decode replay file")
+        else:
+            return replay_info
+    except:
+        # 解决th13和14文件头一样问题
+        if work == '13':
+            work = '14'
+            return threp_output(threp_cut(decodedata, work), work)
+        elif work == '14':
+            work = '13'
+            return threp_output(threp_cut(decodedata, work), work)
+        else:
+            raise Exception("Failed to open replay file")
 
 if __name__ == '__main__':
     init_work_attr()

@@ -1,20 +1,18 @@
 from utils import unsigned_int, unsigned_char
-from struct import pack
-from common import decode, decompress
+from common import decode, decompress, entry
 from math import ceil, floor
 
-_keys = [0xf0a1, 0xfca1, 0xfda1, 0xfda1, 0xfba1, 0x49a8, 0x4ca8, 0x49a8, 0xfaa1, 0x4aa8, 0x4ba8, 0x4aa8, 0xfba1, 0x49a8,
-         0x4ca8, 0x49a8]
-keys = [pack('I', key).decode('gbk')[0] for key in _keys]
+keys = ['○', '↑', '↓', '↓', '←', '↖', '↙', '↖', '→', '↗', '↘', '↗', '←', '↖', '↙', '↖']
 
-work_attr={'10':[0x72303174, 0x4c, 0x50, 0x54, 0x58, 0x5c, 0x64, 0x1c4, 0x10, 0x400, 0xaa, 0xe1, 0x80, 0x3d, 0x7a, 0x8, 0x0],
-           '11':[0x72313174, 0x58, 0x5c, 0x60, 0x64, 0x68, 0x70, 0x90, 0x14, 0x800, 0xaa, 0xe1, 0x40, 0x3d, 0x7a, 0x8, 0x0],
-           '12':[0x72323174, 0x58, 0x5c, 0x60, 0x64, 0x68, 0x70, 0xa0, 0x14, 0x800, 0x5e, 0xe1, 0x40, 0x7d, 0x3a, 0x8, 0x0],
-           '13':[0x72333174, 0x58, 0x5c, 0x60, 0x64, 0x68, 0x84, 0xc4, 0x14, 0x400, 0x5c, 0xe1, 0x100, 0x7d, 0x3a, -0x8, -0x10],
-           '14':[0x72333174, 0x78, 0x7c, 0x80, 0x84, 0x88, 0xa4, 0xdc, 0x14, 0x400, 0x5c, 0xe1, 0x100, 0x7d, 0x3a, -0x8, -0x10],
-           '15':[0x72353174, 0x88, 0x8c, 0x90, 0x94, 0x98, 0xc8, 0x238, 0x14, 0x400, 0x5c, 0xe1, 0x100, 0x7d, 0x3a, -0x1c, -0x24],
-           '16':[0x72363174, 0x80, 0x84, 0x9c, 0x8c, 0x90, 0xc8, 0x294, 0x14, 0x400, 0x5c, 0xe1, 0x100, 0x7d, 0x3a, -0x20, -0x28],
-           '128': [0x72383231, 0x58, 0x5c, 0x60, 0x64, 0x68, 0x70, 0x90, 0x14, 0x800, 0x5e, 0xe7, 0x80, 0x7d, 0x36, 0x8, 0x0]}
+work_attr={'10':[0x72303174, 0x4c, 0x50, 0x54, 0x58, 0x5c, 0x64, 0x1c4, 0x10, 0x400, 0xaa, 0xe1, 0x80, 0x3d, 0x7a, 0x8, 0x0, 10],
+           '11':[0x72313174, 0x58, 0x5c, 0x60, 0x64, 0x68, 0x70, 0x90, 0x14, 0x800, 0xaa, 0xe1, 0x40, 0x3d, 0x7a, 0x8, 0x0, 10],
+           '12':[0x72323174, 0x58, 0x5c, 0x60, 0x64, 0x68, 0x70, 0xa0, 0x14, 0x800, 0x5e, 0xe1, 0x40, 0x7d, 0x3a, 0x8, 0x0, 10],
+           '13':[0x72333174, 0x58, 0x5c, 0x60, 0x64, 0x68, 0x84, 0xc4, 0x14, 0x400, 0x5c, 0xe1, 0x100, 0x7d, 0x3a, -0x8, -0x10, 10],
+           '14':[0x72333174, 0x78, 0x7c, 0x80, 0x84, 0x88, 0xa4, 0xdc, 0x14, 0x400, 0x5c, 0xe1, 0x100, 0x7d, 0x3a, -0x8, -0x10, 10],
+           '15':[0x72353174, 0x88, 0x8c, 0x90, 0x94, 0x98, 0xc8, 0x238, 0x14, 0x400, 0x5c, 0xe1, 0x100, 0x7d, 0x3a, -0x1c, -0x24, 10],
+           '16':[0x72363174, 0x80, 0x84, 0x9c, 0x8c, 0x90, 0xc8, 0x294, 0x14, 0x400, 0x5c, 0xe1, 0x100, 0x7d, 0x3a, -0x20, -0x28, 10],
+           '128':[0x72383231, 0x58, 0x5c, 0x60, 0x64, 0x68, 0x70, 0x90, 0x14, 0x800, 0x5e, 0xe7, 0x80, 0x7d, 0x36, 0x8, 0x0, 10],
+           '125':[0x35323174, 0x54, 0x58, 0x60, 0x64, 0x68, 0x70, 0xa0, 0x14, 0x800, 0x5e, 0xe1, 0x40, 0x7d, 0x3a, 0x8, -0x8, 1]}
 
 dzz_attr=['A1-1','A1-2','A1-3','A2-2','A2-3','B1-1','B1-2','B1-3','B2-2','B2-3','C1-1','C1-2','C1-3','C2-2','C2-3','Extra','All','All','All','All','All','All','All']
 
@@ -35,7 +33,7 @@ def threp_cut(decodedata, work):
             'character': None, 'ctype': None, 'rank': None, 'clear': None,
             'code': work_attr[work][0]}
 
-    #f=open('rep1284.txt', 'wb')
+    #f=open('rep12.txt', 'wb')
     #f.write(decodedata)
     #f.close()
 
@@ -55,10 +53,15 @@ def threp_cut(decodedata, work):
 
     score = list(range(6))
 
-    for i in range(1, stage):
-        stagedata += work_attr[work][7] + unsigned_int(decodedata, stagedata + work_attr[work][15])
-        score[i - 1] = unsigned_int(decodedata, stagedata + 0xc)
-    score[stage - 1] = unsigned_int(decodedata, work_attr[work][8])
+    if work=='125' or work=='143':
+        score[0] = unsigned_int(decodedata, work_attr[work][8])
+        info['stage']=1
+        stage=1
+    else:
+        for i in range(1, stage):
+            stagedata += work_attr[work][7] + unsigned_int(decodedata, stagedata + work_attr[work][15])
+            score[i - 1] = unsigned_int(decodedata, stagedata + 0xc)
+        score[stage - 1] = unsigned_int(decodedata, work_attr[work][8])
 
     stagedata = work_attr[work][6] + work_attr[work][16]
     for l in range(stage):
@@ -72,9 +75,9 @@ def threp_cut(decodedata, work):
         frame = unsigned_int(decodedata, stagedata + 0x4)
         llength = unsigned_int(decodedata, stagedata + 0x8)
         if frame * 6 + ceil(frame / 30) == llength:
-            pass
-        elif frame * 3 + ceil(frame / 60) == llength:
-            frame //= 2
+            perframe=6
+        elif frame * 3 + ceil(frame / 30) == llength:
+            perframe=3
         else:
             print('!Unknow frame pattern, try to detect true frame size througn stage length')
             frame = floor(llength / (6 + 1 / 30))
@@ -83,11 +86,11 @@ def threp_cut(decodedata, work):
         stage_info['frame'] = frame
         stage_info['llength'] = llength
         stage_info['bin']['header'] = decodedata[stagedata: replaydata]
-        stage_info['bin']['replay'] = decodedata[replaydata: (replaydata + (frame * 6))]
-        stage_info['bin']['tail'] = decodedata[(replaydata + (frame * 6)): (replaydata + llength)]
+        stage_info['bin']['replay'] = decodedata[replaydata: (replaydata + (frame * perframe))]
+        stage_info['bin']['tail'] = decodedata[(replaydata + (frame * perframe)): (replaydata + llength)]
         stage_info['index']['header'] = (stagedata, replaydata)
-        stage_info['index']['replay'] = (replaydata, (replaydata + (frame * 6)))
-        stage_info['index']['tail'] = ((replaydata + (frame * 6)), (replaydata + llength))
+        stage_info['index']['replay'] = (replaydata, (replaydata + (frame * perframe)))
+        stage_info['index']['tail'] = ((replaydata + (frame * perframe)), (replaydata + llength))
 
         info['stages'][l] = stage_info
 
@@ -374,6 +377,24 @@ def th128type(character, ctype, rank, clear):
         clear_s = dzz_attr[clear-1]
     return character_s, "", rank_s, clear_s
 
+def th125type(character, ctype, rank, clear):
+    if character == 0:
+        character_s = 'Aya'
+    elif character == 1:
+        character_s = 'Hatate'
+    else:
+        raise Exception("Unrecognized character {}".format(character))
+    if ctype == 12:
+        rank_s = 'EX-'
+    elif ctype == 13:
+        rank_s = 'SP-'
+    elif ctype >= 0 and ctype <= 11:
+        rank_s = str(ctype+1) + "-"
+    else:
+        raise Exception("Unrecognized ctype {}".format(ctype))
+    rank_s+=str(rank+1)
+    return character_s, "", rank_s,""
+
 def threp_output(info, work):
     stage = info['stage']
 
@@ -395,6 +416,8 @@ def threp_output(info, work):
         character, ctype, rank, clear = th16type(info['character'], info['ctype'], info['rank'], info['clear'])
     elif work=='128':
         character, ctype, rank, clear = th128type(info['character'], info['ctype'], info['rank'], info['clear'])
+    elif work=='125':
+        character, ctype, rank, clear = th125type(info['character'], info['ctype'], info['rank'], info['clear'])
     else:
         raise Exception("Unrecognized work {}".format(work))
 
@@ -402,29 +425,45 @@ def threp_output(info, work):
     output['stage_score']=[]
 
     for l in range(stage):
-        output['stage_score'].append(info['stages'][l]['score']*10)
+        output['stage_score'].append(info['stages'][l]['score']*work_attr[work][17])
 
     output['kb_action']=[]
 
-    for l in range(stage):
-        stage_info = info['stages'][l]
-        replaydata = stage_info['bin']['replay']
-        frame = stage_info['frame']
-        skey = []
-        for i in range(frame):
-            if (i % 60 == 0):
-                skey.append('[{0:<6}]'.format(i // 60))
-            framekey = unsigned_int(replaydata, i * 6) >> 4 & 0xf
-            skey.append(keys[framekey])
-            if ((i + 1) % 60 == 0):
-                output['kb_action'].append(''.join(skey))
-                skey = []
-        output['kb_action'].append(''.join(skey))
+    if work=='125' or work=='143':
+        for l in range(stage):
+            stage_info = info['stages'][l]
+            replaydata = stage_info['bin']['replay']
+            replaydata.append(0x00)
+            frame = stage_info['frame']
+            skey = []
+            for i in range(frame):
+                if (i % 60 == 0):
+                    skey.append('[{0:<6}]'.format(i // 60))
+                framekey = unsigned_int(replaydata, i * 3) >> 3 & 0xf
+                skey.append(keys[framekey])
+                if ((i + 1) % 60 == 0):
+                    output['kb_action'].append(''.join(skey))
+                    skey = []
+            output['kb_action'].append(''.join(skey))
+    else:
+        for l in range(stage):
+            stage_info = info['stages'][l]
+            replaydata = stage_info['bin']['replay']
+            frame = stage_info['frame']
+            skey = []
+            for i in range(frame):
+                if (i % 60 == 0):
+                    skey.append('[{0:<6}]'.format(i // 60))
+                framekey = unsigned_int(replaydata, i * 6) >> 4 & 0xf
+                skey.append(keys[framekey])
+                if ((i + 1) % 60 == 0):
+                    output['kb_action'].append(''.join(skey))
+                    skey = []
+            output['kb_action'].append(''.join(skey))
 
     return output
 
 def load(file, work):
-    from common import entry
     file, buffer, flength = entry(file)
     decodedata = threp_decodedata(buffer, work)
     return threp_cut(decodedata, work)
@@ -437,5 +476,6 @@ if __name__ == '__main__':
     #th = threp_output(load('th14_01.rpy', '14'), '14')
     #th = threp_output(load('th15_02.rpy', '15'), '15')
     #th = threp_output(load('th16_04.rpy', '16'), '16')
-    th = threp_output(load('th128_03.rpy', '128'), '128')
-    print(th['base_info'])
+    #th = threp_output(load('th128_03.rpy', '128'), '128')
+    #th = threp_output(load('th125_05.rpy', '125'), '125')
+    print(th)

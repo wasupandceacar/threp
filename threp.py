@@ -1,7 +1,7 @@
 from utils import unsigned_int, unsigned_char
 from common import decode, decompress, entry
 from math import ceil
-from static import *
+from static import work_attr, dzz_attr, skeys, kkeys
 from type import *
 
 def threp_decodedata(buffer):
@@ -75,7 +75,7 @@ def threp_cut(decodedata, work):
         elif frame * 3 + ceil(frame / 30) == llength:
             perframe=3
         else:
-            print('!Unknow frame pattern, try to detect true frame size througn stage length')
+            raise Exception("Replay file Frame decode error")
 
         stage_info['score'] = score[l]
         stage_info['frame'] = frame
@@ -121,14 +121,16 @@ def threp_output(info, work):
     else:
         raise Exception("Unrecognized work {}".format(work))
 
-    output['base_info']=' '.join([character, ctype, rank, clear])
+    output['base_info']=' '.join([character, ctype, rank, clear]).strip().replace("  ", " ")
     output['stage_score']=[]
 
     for l in range(stage):
         output['stage_score'].append(info['stages'][l]['score']*work_attr[work]['score_rate'])
 
-    output['kb_action']=[]
+    output['screen_action']=[]
+    output['keyboard_action']=[]
 
+    # 文花帖DS的rep
     if work=='125':
         for l in range(stage):
             stage_info = info['stages'][l]
@@ -136,39 +138,50 @@ def threp_output(info, work):
             replaydata.append(0x00)
             frame = stage_info['frame']
             skey = []
+            kkey = []
             for i in range(frame):
                 if (i % 60 == 0):
                     skey.append('[{0:<6}]'.format(i // 60))
                 framekey = unsigned_int(replaydata, i * 3) >> 3 & 0xf
-                skey.append(keys[framekey])
+                skey.append(skeys[framekey])
+                kkey.append(kkeys[framekey])
                 if ((i + 1) % 60 == 0):
-                    output['kb_action'].append(''.join(skey))
+                    output['screen_action'].append(''.join(skey))
+                    output['keyboard_action'].append(kkey)
                     skey = []
-            output['kb_action'].append(''.join(skey))
+                    kkey = []
+            output['screen_action'].append(''.join(skey))
+            output['keyboard_action'].append(kkey)
     else:
         for l in range(stage):
             stage_info = info['stages'][l]
             replaydata = stage_info['bin']['replay']
             frame = stage_info['frame']
             skey = []
+            kkey = []
             for i in range(frame):
                 if (i % 60 == 0):
                     skey.append('[{0:<6}]'.format(i // 60))
                 framekey = unsigned_int(replaydata, i * 6) >> 4 & 0xf
-                skey.append(keys[framekey])
+                skey.append(skeys[framekey])
+                kkey.append(kkeys[framekey])
                 if ((i + 1) % 60 == 0):
-                    output['kb_action'].append(''.join(skey))
+                    output['screen_action'].append(''.join(skey))
+                    output['keyboard_action'].append(kkey)
                     skey = []
-            output['kb_action'].append(''.join(skey))
+                    kkey = []
+            output['screen_action'].append(''.join(skey))
+            output['keyboard_action'].append(kkey)
 
     return output
 
 def load(file):
     try:
+        work = 'noob'
         file, buffer, flength = entry(file)
         decodedata, work = threp_decodedata(buffer)
         replay_info = threp_output(threp_cut(decodedata, work), work)
-        if len(replay_info['kb_action'])==0:
+        if len(replay_info['screen_action'])==0:
             # 解决th13和14文件头一样问题
             if work=='13':
                 work='14'
@@ -190,17 +203,3 @@ def load(file):
             return threp_output(threp_cut(decodedata, work), work)
         else:
             raise Exception("Failed to open replay file")
-
-if __name__ == '__main__':
-    init_work_attr()
-    #th = load('th10_02.rpy')
-    #th = load('th11_08.rpy')
-    #th = load('th12_13.rpy')
-    th = load('th13_01.rpy')
-    #th = load('th14_01.rpy')
-    #th = load('th15_02.rpy')
-    #th = load('th16_04.rpy')
-    #th = load('th125_05.rpy')
-    #th = load('th128_03.rpy')
-    #th = load('th143_25.rpy')
-    print(th)

@@ -1,47 +1,43 @@
 from utils import unsigned_int, unsigned_char
 from common import decode, decompress, entry
-from math import ceil, floor
+from math import ceil
+from static import *
+from type import *
 
-keys = ['○', '↑', '↓', '↓', '←', '↖', '↙', '↖', '→', '↗', '↘', '↗', '←', '↖', '↙', '↖']
-
-work_attr={'10':[0x72303174, 0x4c, 0x50, 0x54, 0x58, 0x5c, 0x64, 0x1c4, 0x10, 0x400, 0xaa, 0xe1, 0x80, 0x3d, 0x7a, 0x8, 0x0, 10],
-           '11':[0x72313174, 0x58, 0x5c, 0x60, 0x64, 0x68, 0x70, 0x90, 0x14, 0x800, 0xaa, 0xe1, 0x40, 0x3d, 0x7a, 0x8, 0x0, 10],
-           '12':[0x72323174, 0x58, 0x5c, 0x60, 0x64, 0x68, 0x70, 0xa0, 0x14, 0x800, 0x5e, 0xe1, 0x40, 0x7d, 0x3a, 0x8, 0x0, 10],
-           '13':[0x72333174, 0x58, 0x5c, 0x60, 0x64, 0x68, 0x84, 0xc4, 0x14, 0x400, 0x5c, 0xe1, 0x100, 0x7d, 0x3a, -0x8, -0x10, 10],
-           '14':[0x72333174, 0x78, 0x7c, 0x80, 0x84, 0x88, 0xa4, 0xdc, 0x14, 0x400, 0x5c, 0xe1, 0x100, 0x7d, 0x3a, -0x8, -0x10, 10],
-           '15':[0x72353174, 0x88, 0x8c, 0x90, 0x94, 0x98, 0xc8, 0x238, 0x14, 0x400, 0x5c, 0xe1, 0x100, 0x7d, 0x3a, -0x1c, -0x24, 10],
-           '16':[0x72363174, 0x80, 0x84, 0x9c, 0x8c, 0x90, 0xc8, 0x294, 0x14, 0x400, 0x5c, 0xe1, 0x100, 0x7d, 0x3a, -0x20, -0x28, 10],
-           '128':[0x72383231, 0x58, 0x5c, 0x60, 0x64, 0x68, 0x70, 0x90, 0x14, 0x800, 0x5e, 0xe7, 0x80, 0x7d, 0x36, 0x8, 0x0, 10],
-           '125':[0x35323174, 0x54, 0x58, 0x60, 0x64, 0x68, 0x70, 0xa0, 0x14, 0x800, 0x5e, 0xe1, 0x40, 0x7d, 0x3a, 0x8, -0x8, 1]}
-
-dzz_attr=['A1-1','A1-2','A1-3','A2-2','A2-3','B1-1','B1-2','B1-3','B2-2','B2-3','C1-1','C1-2','C1-3','C2-2','C2-3','Extra','All','All','All','All','All','All','All']
-
-def threp_decodedata(buffer, work):
-    length = unsigned_int(buffer, 0x1c)
-    dlength = unsigned_int(buffer, 0x20)
-    decodedata = bytearray(dlength)
-    rawdata = bytearray(buffer[0x24:])
-    decode(rawdata, length, work_attr[work][9], work_attr[work][10], work_attr[work][11])
-    decode(rawdata, length, work_attr[work][12], work_attr[work][13], work_attr[work][14])
-    decompress(rawdata, decodedata, length)
-
-    return decodedata
-
+def threp_decodedata(buffer):
+    work_magicnumber = unsigned_int(buffer, 0)
+    is_2hu_replay=False
+    for key, value in work_attr.items():
+        if work_magicnumber==value['magic_number']:
+            is_2hu_replay=True
+            work=key
+    if is_2hu_replay:
+        length = unsigned_int(buffer, 0x1c)
+        dlength = unsigned_int(buffer, 0x20)
+        decodedata = bytearray(dlength)
+        rawdata = bytearray(buffer[0x24:])
+        decode(rawdata, length, work_attr[work]['decode_var1'], work_attr[work]['decode_var2'],
+               work_attr[work]['decode_var3'])
+        decode(rawdata, length, work_attr[work]['decode_var4'], work_attr[work]['decode_var5'],
+               work_attr[work]['decode_var6'])
+        decompress(rawdata, decodedata, length)
+        return decodedata, work
+    else:
+        raise Exception("Unrecognized replay file")
 
 def threp_cut(decodedata, work):
-    info = {'meta': decodedata[:work_attr[work][6]], 'stages': {}, 'stage': None,
-            'character': None, 'ctype': None, 'rank': None, 'clear': None,
-            'code': work_attr[work][0]}
+    info = {'stages': {}, 'stage': None,
+            'character': None, 'ctype': None, 'rank': None, 'clear': None,}
 
-    #f=open('rep12.txt', 'wb')
+    #f=open('rep143.txt', 'wb')
     #f.write(decodedata)
     #f.close()
 
-    stage = decodedata[work_attr[work][1]]
-    character = unsigned_char(decodedata, work_attr[work][2])
-    ctype = unsigned_char(decodedata, work_attr[work][3])
-    rank = unsigned_char(decodedata, work_attr[work][4])
-    clear = unsigned_char(decodedata, work_attr[work][5])
+    stage = decodedata[work_attr[work]['stage']]
+    character = unsigned_char(decodedata, work_attr[work]['character'])
+    ctype = unsigned_char(decodedata, work_attr[work]['ctype'])
+    rank = unsigned_char(decodedata, work_attr[work]['rank'])
+    clear = unsigned_char(decodedata, work_attr[work]['clear'])
 
     info['stage'] = stage
     info['character'] = character
@@ -49,21 +45,21 @@ def threp_cut(decodedata, work):
     info['rank'] = rank
     info['clear'] = clear
 
-    stagedata = work_attr[work][6]
+    stagedata = work_attr[work]['stagedata']
 
     score = list(range(6))
 
     if work=='125' or work=='143':
-        score[0] = unsigned_int(decodedata, work_attr[work][8])
+        score[0] = unsigned_int(decodedata, work_attr[work]['totalscoredata'])
         info['stage']=1
         stage=1
     else:
         for i in range(1, stage):
-            stagedata += work_attr[work][7] + unsigned_int(decodedata, stagedata + work_attr[work][15])
+            stagedata += work_attr[work]['replaydata_offset'] + unsigned_int(decodedata, stagedata + work_attr[work]['scoredata_offset'])
             score[i - 1] = unsigned_int(decodedata, stagedata + 0xc)
-        score[stage - 1] = unsigned_int(decodedata, work_attr[work][8])
+        score[stage - 1] = unsigned_int(decodedata, work_attr[work]['totalscoredata'])
 
-    stagedata = work_attr[work][6] + work_attr[work][16]
+    stagedata = work_attr[work]['stagedata'] + work_attr[work]['stagedata_offset']
     for l in range(stage):
         stage_info = {'score': None, 'frame': None, 'llength': None, 'faith': None,
                       'bin': {'header': None, 'replay': None, 'tail': None},
@@ -71,7 +67,7 @@ def threp_cut(decodedata, work):
         stage_info['score'] = score[l]
         info['stages'][l] = stage_info
 
-        replaydata = stagedata + work_attr[work][7]
+        replaydata = stagedata + work_attr[work]['replaydata_offset']
         frame = unsigned_int(decodedata, stagedata + 0x4)
         llength = unsigned_int(decodedata, stagedata + 0x8)
         if frame * 6 + ceil(frame / 30) == llength:
@@ -80,7 +76,6 @@ def threp_cut(decodedata, work):
             perframe=3
         else:
             print('!Unknow frame pattern, try to detect true frame size througn stage length')
-            frame = floor(llength / (6 + 1 / 30))
 
         stage_info['score'] = score[l]
         stage_info['frame'] = frame
@@ -94,306 +89,9 @@ def threp_cut(decodedata, work):
 
         info['stages'][l] = stage_info
 
-        stagedata += llength + work_attr[work][7]
+        stagedata += llength + work_attr[work]['replaydata_offset']
 
     return info
-
-
-def th10type(character, ctype, rank, clear):
-    if character == 0:
-        character_s = 'Reimu'
-    elif character == 1:
-        character_s = 'Marisa'
-    else:
-        raise Exception("Unrecognized character {}".format(character))
-    if ctype == 0:
-        ctype_s = 'A'
-    elif ctype == 1:
-        ctype_s = 'B'
-    elif ctype == 2:
-        ctype_s = 'C'
-    else:
-        raise Exception("Unrecognized ctype {}".format(ctype))
-    if rank == 0:
-        rank_s = 'easy'
-    elif rank == 1:
-        rank_s = 'normal'
-    elif rank == 2:
-        rank_s = 'hard'
-    elif rank == 3:
-        rank_s = 'lunatic'
-    elif rank == 4:
-        rank_s = 'extra'
-    else:
-        raise Exception("Unrecognized rank {}".format(rank))
-    if clear == 8:
-        clear_s = 'all'
-    elif clear == 7:
-        clear_s = 'extra'
-    else:
-        clear_s = str(clear)
-    return character_s, ctype_s, rank_s, clear_s
-
-def th11type(character, ctype, rank, clear):
-    if character == 0:
-        character_s = 'Reimu'
-    elif character == 1:
-        character_s = 'Marisa'
-    else:
-        raise Exception("Unrecognized character {}".format(character))
-    if ctype == 0:
-        ctype_s = 'A'
-    elif ctype == 1:
-        ctype_s = 'B'
-    elif ctype == 2:
-        ctype_s = 'C'
-    else:
-        raise Exception("Unrecognized ctype {}".format(ctype))
-    if rank == 0:
-        rank_s = 'easy'
-    elif rank == 1:
-        rank_s = 'normal'
-    elif rank == 2:
-        rank_s = 'hard'
-    elif rank == 3:
-        rank_s = 'lunatic'
-    elif rank == 4:
-        rank_s = 'extra'
-    else:
-        raise Exception("Unrecognized rank {}".format(rank))
-    if clear == 8:
-        clear_s = 'all'
-    elif clear == 7:
-        clear_s = 'extra'
-    else:
-        clear_s = str(clear)
-    return character_s, ctype_s, rank_s, clear_s
-
-def th12type(character, ctype, rank, clear):
-    if character == 0:
-        character_s = 'Reimu'
-    elif character == 1:
-        character_s = 'Marisa'
-    elif character == 2:
-        character_s = 'Sanae'
-    else:
-        raise Exception("Unrecognized character {}".format(character))
-    if ctype == 0:
-        ctype_s = 'A'
-    elif ctype == 1:
-        ctype_s = 'B'
-    else:
-        raise Exception("Unrecognized ctype {}".format(ctype))
-    if rank == 0:
-        rank_s = 'easy'
-    elif rank == 1:
-        rank_s = 'normal'
-    elif rank == 2:
-        rank_s = 'hard'
-    elif rank == 3:
-        rank_s = 'lunatic'
-    elif rank == 4:
-        rank_s = 'extra'
-    else:
-        raise Exception("Unrecognized rank {}".format(rank))
-    if clear == 8:
-        clear_s = 'all'
-    elif clear == 7:
-        clear_s = 'extra'
-    else:
-        clear_s = str(clear)
-    return character_s, ctype_s, rank_s, clear_s
-
-def th13type(character, ctype, rank, clear):
-    if character == 0:
-        character_s = 'Reimu'
-    elif character == 1:
-        character_s = 'Marisa'
-    elif character == 2:
-        character_s = 'Sanae'
-    elif character == 3:
-        character_s = 'Youmu'
-    else:
-        raise Exception("Unrecognized character {}".format(character))
-    if rank == 0:
-        rank_s = 'easy'
-    elif rank == 1:
-        rank_s = 'normal'
-    elif rank == 2:
-        rank_s = 'hard'
-    elif rank == 3:
-        rank_s = 'lunatic'
-    elif rank == 4:
-        rank_s = 'extra'
-    else:
-        raise Exception("Unrecognized rank {}".format(rank))
-    if clear == 8:
-        clear_s = 'all'
-    elif clear == 7:
-        clear_s = 'extra'
-    else:
-        clear_s = str(clear)
-    return character_s, "", rank_s, clear_s
-
-def th14type(character, ctype, rank, clear):
-    if character == 0:
-        character_s = 'Reimu'
-    elif character == 1:
-        character_s = 'Marisa'
-    elif character == 2:
-        character_s = 'Sakuya'
-    else:
-        raise Exception("Unrecognized character {}".format(character))
-    if ctype == 0:
-        ctype_s = 'A'
-    elif ctype == 1:
-        ctype_s = 'B'
-    else:
-        raise Exception("Unrecognized ctype {}".format(ctype))
-    if rank == 0:
-        rank_s = 'easy'
-    elif rank == 1:
-        rank_s = 'normal'
-    elif rank == 2:
-        rank_s = 'hard'
-    elif rank == 3:
-        rank_s = 'lunatic'
-    elif rank == 4:
-        rank_s = 'extra'
-    else:
-        raise Exception("Unrecognized rank {}".format(rank))
-    if clear == 8:
-        clear_s = 'all'
-    elif clear == 7:
-        clear_s = 'extra'
-    else:
-        clear_s = str(clear)
-    return character_s, ctype_s, rank_s, clear_s
-
-def th15type(character, ctype, rank, clear):
-    if character == 0:
-        character_s = 'Reimu'
-    elif character == 1:
-        character_s = 'Marisa'
-    elif character == 2:
-        character_s = 'Sanae'
-    elif character == 3:
-        character_s = 'Reisen'
-    else:
-        raise Exception("Unrecognized character {}".format(character))
-    if rank == 0:
-        rank_s = 'easy'
-    elif rank == 1:
-        rank_s = 'normal'
-    elif rank == 2:
-        rank_s = 'hard'
-    elif rank == 3:
-        rank_s = 'lunatic'
-    elif rank == 4:
-        rank_s = 'extra'
-    else:
-        raise Exception("Unrecognized rank {}".format(rank))
-    if clear == 8:
-        clear_s = 'all'
-    elif clear == 7:
-        clear_s = 'extra'
-    else:
-        clear_s = str(clear)
-    return character_s, "", rank_s, clear_s
-
-def th16type(character, ctype, rank, clear):
-    if character == 0:
-        character_s = 'Reimu'
-    elif character == 1:
-        character_s = 'Cirno'
-    elif character == 2:
-        character_s = 'Aya'
-    elif character == 3:
-        character_s = 'Marisa'
-    else:
-        raise Exception("Unrecognized character {}".format(character))
-    if ctype == 0:
-        ctype_s = 'Spring'
-    elif ctype == 1:
-        ctype_s = 'Summer'
-    elif ctype == 2:
-        ctype_s = 'Autumn'
-    elif ctype == 3:
-        ctype_s = 'Winter'
-    elif ctype == 4:
-        ctype_s = 'Full'
-    else:
-        raise Exception("Unrecognized ctype {}".format(ctype))
-    if rank == 0:
-        rank_s = 'easy'
-    elif rank == 1:
-        rank_s = 'normal'
-    elif rank == 2:
-        rank_s = 'hard'
-    elif rank == 3:
-        rank_s = 'lunatic'
-    elif rank == 4:
-        rank_s = 'extra'
-    else:
-        raise Exception("Unrecognized rank {}".format(rank))
-    if clear == 8:
-        clear_s = 'all'
-    elif clear == 7:
-        clear_s = 'extra'
-    else:
-        clear_s = str(clear)
-    return character_s, ctype_s, rank_s, clear_s
-
-def th128type(character, ctype, rank, clear):
-    if character == 0:
-        character_s = 'A1'
-    elif character == 1:
-        character_s = 'A2'
-    elif character == 2:
-        character_s = 'B1'
-    elif character == 3:
-        character_s = 'B2'
-    elif character == 4:
-        character_s = 'C1'
-    elif character == 5:
-        character_s = 'C2'
-    elif character == 6:
-        character_s = 'Extra'
-    else:
-        raise Exception("Unrecognized character {}".format(character))
-    if rank == 0:
-        rank_s = 'Easy'
-    elif rank == 1:
-        rank_s = 'Normal'
-    elif rank == 2:
-        rank_s = 'Hard'
-    elif rank == 3:
-        rank_s = 'Lunatic'
-    elif rank == 4:
-        rank_s = 'Extra'
-    else:
-        raise Exception("Unrecognized rank {}".format(rank))
-    if clear>=1 and clear<=23:
-        clear_s = dzz_attr[clear-1]
-    return character_s, "", rank_s, clear_s
-
-def th125type(character, ctype, rank, clear):
-    if character == 0:
-        character_s = 'Aya'
-    elif character == 1:
-        character_s = 'Hatate'
-    else:
-        raise Exception("Unrecognized character {}".format(character))
-    if ctype == 12:
-        rank_s = 'EX-'
-    elif ctype == 13:
-        rank_s = 'SP-'
-    elif ctype >= 0 and ctype <= 11:
-        rank_s = str(ctype+1) + "-"
-    else:
-        raise Exception("Unrecognized ctype {}".format(ctype))
-    rank_s+=str(rank+1)
-    return character_s, "", rank_s,""
 
 def threp_output(info, work):
     stage = info['stage']
@@ -418,6 +116,8 @@ def threp_output(info, work):
         character, ctype, rank, clear = th128type(info['character'], info['ctype'], info['rank'], info['clear'])
     elif work=='125':
         character, ctype, rank, clear = th125type(info['character'], info['ctype'], info['rank'], info['clear'])
+    elif work=='143':
+        character, ctype, rank, clear = th143type(info['character'], info['ctype'], info['rank'], info['clear'])
     else:
         raise Exception("Unrecognized work {}".format(work))
 
@@ -425,11 +125,11 @@ def threp_output(info, work):
     output['stage_score']=[]
 
     for l in range(stage):
-        output['stage_score'].append(info['stages'][l]['score']*work_attr[work][17])
+        output['stage_score'].append(info['stages'][l]['score']*work_attr[work]['score_rate'])
 
     output['kb_action']=[]
 
-    if work=='125' or work=='143':
+    if work=='125':
         for l in range(stage):
             stage_info = info['stages'][l]
             replaydata = stage_info['bin']['replay']
@@ -463,19 +163,21 @@ def threp_output(info, work):
 
     return output
 
-def load(file, work):
+def load(file):
     file, buffer, flength = entry(file)
-    decodedata = threp_decodedata(buffer, work)
-    return threp_cut(decodedata, work)
+    decodedata, work = threp_decodedata(buffer)
+    return threp_output(threp_cut(decodedata, work), work)
 
 if __name__ == '__main__':
-    #th = threp_output(load('th10_02.rpy', '10'), '10')
-    #th = threp_output(load('th11_08.rpy', '11'), '11')
-    #th = threp_output(load('th12_13.rpy', '12'), '12')
-    #th = threp_output(load('th13_01.rpy', '13'), '13')
-    #th = threp_output(load('th14_01.rpy', '14'), '14')
-    #th = threp_output(load('th15_02.rpy', '15'), '15')
-    #th = threp_output(load('th16_04.rpy', '16'), '16')
-    #th = threp_output(load('th128_03.rpy', '128'), '128')
-    #th = threp_output(load('th125_05.rpy', '125'), '125')
+    init_work_attr()
+    #th = load('th10_02.rpy')
+    #th = load('th11_08.rpy')
+    #th = load('th12_13.rpy')
+    th = load('th13_01.rpy')
+    #th = load('th14_01.rpy')
+    #th = load('th15_02.rpy')
+    #th = load('th16_04.rpy')
+    #th = load('th125_05.rpy')
+    #th = load('th128_03.rpy')
+    #th = load('th143_25.rpy')
     print(th)

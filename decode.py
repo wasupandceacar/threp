@@ -1,10 +1,10 @@
-from utils import unsigned_int, unsigned_char, float
-from common import decode, decompress, entry
 from math import ceil
 from time import localtime
 
-from static import work_attr, skeys, kkeys
-from type import *
+from .utils import unsigned_int, unsigned_char, float
+from .common import decode, decompress, entry
+from .static import work_attr, skeys, kkeys
+from .type import *
 
 def threp_decodedata(buffer):
     work_magicnumber = unsigned_int(buffer, 0)

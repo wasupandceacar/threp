@@ -24,9 +24,21 @@ class THReplay():
     def getKeyboardAction(self):
         return self.__replay_info['keyboard_action']
 
+    def getPlayer(self):
+        return self.__replay_info['player']
+
+    def getSlowRate(self):
+        return self.__replay_info['slowrate']
+
+    def getDate(self):
+        return self.__replay_info['date']
+
 if __name__ == '__main__':
-    tr=THReplay('th14_01.rpy')
+    tr=THReplay('th143_01.rpy')
     print(tr.getBaseInfo())
     print(tr.getStageScore())
-    print(tr.getScreenAction())
-    print(tr.getKeyboardAction())
+    #print(tr.getScreenAction())
+    #print(tr.getKeyboardAction())
+    print(tr.getPlayer())
+    print(tr.getSlowRate())
+    print(tr.getDate())

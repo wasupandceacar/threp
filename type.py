@@ -1,3 +1,5 @@
+from static import dzz_attr
+
 def th10type(character, ctype, rank, clear):
     if character == 0:
         character_s = 'Reimu'

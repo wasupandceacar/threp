@@ -11,6 +11,8 @@ def unsigned_char(_bytes, pointer):
 def signed_int(_bytes, pointer):
     return unpack('i', _bytes[pointer:pointer + 4])[0]
 
+def float(_bytes, pointer):
+    return unpack('f', _bytes[pointer:pointer + 4])[0]
 
 def bin32(num):
     return '{0:>32}'.format(bin(num)[2:]).replace(' ', '0')

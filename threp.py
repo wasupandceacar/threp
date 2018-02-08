@@ -1,7 +1,9 @@
-from utils import unsigned_int, unsigned_char
+from utils import unsigned_int, unsigned_char, float
 from common import decode, decompress, entry
 from math import ceil
-from static import work_attr, dzz_attr, skeys, kkeys
+from time import localtime
+
+from static import work_attr, skeys, kkeys
 from type import *
 
 def threp_decodedata(buffer):
@@ -27,9 +29,9 @@ def threp_decodedata(buffer):
 
 def threp_cut(decodedata, work):
     info = {'stages': {}, 'stage': None,
-            'character': None, 'ctype': None, 'rank': None, 'clear': None,}
+            'character': None, 'ctype': None, 'rank': None, 'clear': None, 'player': '', 'slowrate': None, 'date': None}
 
-    #f=open('de.txt', 'wb')
+    #f=open('rep143.txt', 'wb')
     #f.write(decodedata)
     #f.close()
 
@@ -38,12 +40,21 @@ def threp_cut(decodedata, work):
     ctype = unsigned_char(decodedata, work_attr[work]['ctype'])
     rank = unsigned_char(decodedata, work_attr[work]['rank'])
     clear = unsigned_char(decodedata, work_attr[work]['clear'])
+    date = localtime(unsigned_int(decodedata, work_attr[work]['date']))
 
     info['stage'] = stage
     info['character'] = character
     info['ctype'] = ctype
     info['rank'] = rank
     info['clear'] = clear
+
+    for i in range(8):
+        info['player']+=chr(unsigned_char(decodedata, i))
+    info['player']=info['player'].replace(" ", "")
+
+    info['slowrate']=round(float(decodedata, work_attr[work]['slowrate']), 2)
+
+    info['date']=str(date[0])+"/"+str(date[1]).zfill(2)+"/"+str(date[2]).zfill(2)+" "+str(date[3]).zfill(2)+":"+str(date[4]).zfill(2)
 
     stagedata = work_attr[work]['stagedata']
 
@@ -123,6 +134,9 @@ def threp_output(info, work):
 
     output['base_info']=' '.join([character, ctype, rank, clear]).strip().replace("  ", " ")
     output['stage_score']=[]
+    output['player']=info['player']
+    output['slowrate'] = info['slowrate']
+    output['date'] = info['date']
 
     for l in range(stage):
         output['stage_score'].append(info['stages'][l]['score']*work_attr[work]['score_rate'])

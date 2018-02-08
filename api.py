@@ -1,7 +1,7 @@
-from threp import load
+from decode import load
 from static import init_work_attr
 
-class THReplay():
+class THReplay:
     def __init__(self, replay_file):
         init_work_attr()
         self.__replay_info=load(replay_file)
@@ -32,13 +32,3 @@ class THReplay():
 
     def getDate(self):
         return self.__replay_info['date']
-
-if __name__ == '__main__':
-    tr=THReplay('th143_01.rpy')
-    print(tr.getBaseInfo())
-    print(tr.getStageScore())
-    #print(tr.getScreenAction())
-    #print(tr.getKeyboardAction())
-    print(tr.getPlayer())
-    print(tr.getSlowRate())
-    print(tr.getDate())

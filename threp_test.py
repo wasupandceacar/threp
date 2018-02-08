@@ -1,19 +1,6 @@
-一、介绍
----------
-threp用于解析东方project系列游戏的replay文件，即游戏回放文件，可以获取replay文件的通关情况，机师，难度，通关情况，机体，处理落，日期，屏幕移动，按键记录。
-支持TH10-16整数作以及TH12.5、TH12.8、TH14.3。
+if __name__ == '__main__':
+    from threp import THReplay
 
-二、安装方法
--------------
-在 Python 3.5+ 下使用，用 pip 安装：
-
-    pip install threp
-
-三、使用方法
--------------
-
-	from threp import THReplay
- 
     # 载入一个replay文件，参数为路径
     tr=THReplay('th14_03.rpy')
 

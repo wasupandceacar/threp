@@ -1,6 +1,7 @@
 from .api import THReplay
 
 if __name__ == '__main__':
+
     # 载入一个replay文件，参数为路径
     tr=THReplay('th7_15.rpy')
 

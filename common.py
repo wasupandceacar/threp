@@ -14,7 +14,6 @@ def get_bit(buffer, ref_pointer, ref_filter, length):
             ref_filter.value = 0x80
     return result
 
-
 def decompress(buffer, decode, length):
     ref_pointer = Ref()
     ref_pointer.value = 0
@@ -47,7 +46,6 @@ def decompress(buffer, decode, length):
                 decode[dest] = dict[index + i]
                 dest += 1
     return dest
-
 
 def decode(buffer, length, block_size, base, add):
     assert isinstance(buffer, bytearray)

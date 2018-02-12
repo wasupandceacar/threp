@@ -187,7 +187,7 @@ def yymrep_cut(dat):
         decodedata[i] = (dat[i] - mask) & 0xff
         mask = (mask + 0x07) & 0xff
 
-    #f = open('rep711.txt', 'wb')
+    #f = open('rep715.txt', 'wb')
     #f.write(decodedata)
     #f.close()
 
@@ -207,7 +207,8 @@ def yymrep_cut(dat):
     for i in range(0,0x16c80):
         v4b.append(0)
 
-    rep_length=unsigned_int(dat, 0x4c)
+    rep_length=unsigned_int(dat, 0x18)
+
     decodedata=bytearray(rep_length)
     for i in range(0x54):
         decodedata[i] = dat[i]
@@ -299,7 +300,7 @@ def yymrep_cut(dat):
             v34=(v34+1) & 0x1fff
             v10 += 1
 
-    #f = open('rep7.txt', 'wb')
+    #f = open('rep715.txt', 'wb')
     #f.write(decodedata)
     #f.close()
 
@@ -322,16 +323,26 @@ def yymrep_cut(dat):
     rep_info['screen_action'] = []
     rep_info['keyboard_action'] = []
 
-    stage_end=unsigned_int(decodedata, 0x38)
-    stage_offsets=[]
+    is_extra_or_phantasm=(unsigned_int(decodedata, 0x1c)==0)
 
-    for i in range(7):
-        stage_offset = unsigned_int(decodedata, 0x1c + i * 0x4)
-        if stage_offset != 0:
-            rep_info['stage_score'].append(unsigned_int(decodedata, stage_offset) * 10)
-            stage_offsets.append(stage_offset)
+    if is_extra_or_phantasm:
+        stage_start = unsigned_int(decodedata, 0x34)
+        stage_end = unsigned_int(decodedata, 0x50)
+        stage_offsets = []
+        stage_offsets.append(stage_start)
+        stage_offsets.append(stage_end)
+        rep_info['stage_score'].append(unsigned_int(decodedata, stage_start) * 10)
+    else:
+        stage_end = unsigned_int(decodedata, 0x38)
+        stage_offsets = []
 
-    stage_offsets.append(stage_end)
+        for i in range(7):
+            stage_offset = unsigned_int(decodedata, 0x1c + i * 0x4)
+            if stage_offset != 0:
+                rep_info['stage_score'].append(unsigned_int(decodedata, stage_offset) * 10)
+                stage_offsets.append(stage_offset)
+
+        stage_offsets.append(stage_end)
 
     for i in range(len(stage_offsets)-1):
         start = stage_offsets[i] + 0x28

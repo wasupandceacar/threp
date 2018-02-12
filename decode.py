@@ -300,7 +300,7 @@ def yymrep_cut(dat):
             v34=(v34+1) & 0x1fff
             v10 += 1
 
-    #f = open('rep715.txt', 'wb')
+    #f = open('rep717.txt', 'wb')
     #f.write(decodedata)
     #f.close()
 
@@ -323,18 +323,29 @@ def yymrep_cut(dat):
     rep_info['screen_action'] = []
     rep_info['keyboard_action'] = []
 
-    is_extra_or_phantasm=(unsigned_int(decodedata, 0x1c)==0)
+    is_extra_or_phantasm=(unsigned_int(decodedata, 0x34)!=0)
+
+    is_onestage=(unsigned_int(decodedata, 0x1c) == 0)
+
+    stage_offsets = []
 
     if is_extra_or_phantasm:
         stage_start = unsigned_int(decodedata, 0x34)
         stage_end = unsigned_int(decodedata, 0x50)
-        stage_offsets = []
         stage_offsets.append(stage_start)
         stage_offsets.append(stage_end)
         rep_info['stage_score'].append(unsigned_int(decodedata, stage_start) * 10)
+    elif is_onestage:
+        for i in range(6):
+            stage_offset = unsigned_int(decodedata, 0x1c + i * 0x4)
+            if stage_offset != 0:
+                rep_info['stage_score'].append(unsigned_int(decodedata, stage_offset) * 10)
+                stage_offsets.append(stage_offset)
+                stage_end = unsigned_int(decodedata, 0x38 + i * 0x4)
+                stage_offsets.append(stage_end)
+                break
     else:
         stage_end = unsigned_int(decodedata, 0x38)
-        stage_offsets = []
 
         for i in range(7):
             stage_offset = unsigned_int(decodedata, 0x1c + i * 0x4)

@@ -32,7 +32,7 @@ def th10type(character, ctype, rank, clear):
     elif clear == 7:
         clear_s = 'extra'
     else:
-        clear_s = str(clear)
+        clear_s = "stage "+str(clear)
     return character_s, ctype_s, rank_s, clear_s
 
 def th11type(character, ctype, rank, clear):
@@ -67,7 +67,7 @@ def th11type(character, ctype, rank, clear):
     elif clear == 7:
         clear_s = 'extra'
     else:
-        clear_s = str(clear)
+        clear_s = "stage "+str(clear)
     return character_s, ctype_s, rank_s, clear_s
 
 def th12type(character, ctype, rank, clear):
@@ -102,7 +102,7 @@ def th12type(character, ctype, rank, clear):
     elif clear == 7:
         clear_s = 'extra'
     else:
-        clear_s = str(clear)
+        clear_s = "stage "+str(clear)
     return character_s, ctype_s, rank_s, clear_s
 
 def th13type(character, ctype, rank, clear):
@@ -133,7 +133,7 @@ def th13type(character, ctype, rank, clear):
     elif clear == 7:
         clear_s = 'extra'
     else:
-        clear_s = str(clear)
+        clear_s = "stage "+str(clear)
     return character_s, "", rank_s, clear_s
 
 def th14type(character, ctype, rank, clear):
@@ -168,7 +168,7 @@ def th14type(character, ctype, rank, clear):
     elif clear == 7:
         clear_s = 'extra'
     else:
-        clear_s = str(clear)
+        clear_s = "stage "+str(clear)
     return character_s, ctype_s, rank_s, clear_s
 
 def th15type(character, ctype, rank, clear):
@@ -199,7 +199,7 @@ def th15type(character, ctype, rank, clear):
     elif clear == 7:
         clear_s = 'extra'
     else:
-        clear_s = str(clear)
+        clear_s = "stage "+str(clear)
     return character_s, "", rank_s, clear_s
 
 def th16type(character, ctype, rank, clear):
@@ -242,7 +242,7 @@ def th16type(character, ctype, rank, clear):
     elif clear == 7:
         clear_s = 'extra'
     else:
-        clear_s = str(clear)
+        clear_s = "stage "+str(clear)
     return character_s, ctype_s, rank_s, clear_s
 
 def th128type(character, ctype, rank, clear):

@@ -192,7 +192,7 @@ def yymrep_cut(dat):
     #f.close()
 
     dat = decodedata
-    # decompress
+    # 解压
     v04 = 0
     v1c = 0
     v30 = 0
@@ -200,7 +200,7 @@ def yymrep_cut(dat):
     v34 = 1
     v11 = 0x80
     v20 = 0
-    # reinit v20
+
     for i in range(0,4):
         v20 = v20 * 0x100 + dat[0x17-i]
     v4b = []
@@ -304,14 +304,12 @@ def yymrep_cut(dat):
     #f.write(decodedata)
     #f.close()
 
-    # raplay info
     date = decodedata[0x58:0x58+5]
     name = decodedata[0x5e:0x5e+8]
     char = decodedata[0x56]
     rank = decodedata[0x57]
     drop = float(decodedata, 0xcc)
 
-    # [date, player, char, score, rank, version, drop]
     rep_info['date'] = date.strip().decode()
     rep_info['player'] = name.strip().decode()
     chars = ("Reimu A", "Reimu B", "Marisa A", "Marisa B", "Sakuya A", "Sakuya B")

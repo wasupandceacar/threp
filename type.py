@@ -126,6 +126,8 @@ def th13type(character, ctype, rank, clear):
         rank_s = 'lunatic'
     elif rank == 4:
         rank_s = 'extra'
+    elif rank == 5:
+        rank_s = 'overdrive'
     else:
         raise Exception("Unrecognized rank {}".format(rank))
     if clear == 8:

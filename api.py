@@ -32,3 +32,6 @@ class THReplay:
 
     def getDate(self):
         return self.__replay_info['date']
+
+    def getError(self):
+        return self.__replay_info['error']

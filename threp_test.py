@@ -1,9 +1,9 @@
-from api import THReplay
+from threp import THReplay
 
 if __name__ == '__main__':
 
     # 载入一个replay文件，参数为路径
-    tr=THReplay('th6_01.rpy')
+    tr=THReplay('G:/th15_ud02d6.rpy')
 
     # 获取rep基本信息，包含机体，难度，通关情况，字符串
     # etc. Reimu A normal all
@@ -36,6 +36,8 @@ if __name__ == '__main__':
     # 获取rep的时间，字符串
     # etc. 2015/02/17 22:23
     print(tr.getDate())
+
+    print(tr.getError())
 
     #载入一个新的replay文件，参数为路径
     tr.reload_replay("th15_02.rpy")

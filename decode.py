@@ -34,9 +34,9 @@ def threp_decodedata(buffer):
 
 def threp_cut(decodedata, work):
     info = {'stages': {}, 'stage': None,
-            'character': None, 'ctype': None, 'rank': None, 'clear': None, 'player': '', 'slowrate': None, 'date': None}
+            'character': None, 'ctype': None, 'rank': None, 'clear': None, 'player': '', 'slowrate': None, 'date': None, 'error':[]}
 
-    #f=open('rep143.txt', 'wb')
+    #f=open('rep1555.txt', 'wb')
     #f.write(decodedata)
     #f.close()
 
@@ -76,22 +76,26 @@ def threp_cut(decodedata, work):
         score[stage - 1] = unsigned_int(decodedata, work_attr[work]['totalscoredata'])
 
     stagedata = work_attr[work]['stagedata'] + work_attr[work]['stagedata_offset']
+
     for l in range(stage):
         stage_info = {'score': None, 'frame': None, 'llength': None, 'faith': None,
                       'bin': {'header': None, 'replay': None, 'tail': None},
                       'index': {'header': None, 'replay': None, 'tail': None}}
-        stage_info['score'] = score[l]
-        info['stages'][l] = stage_info
 
         replaydata = stagedata + work_attr[work]['replaydata_offset']
         frame = unsigned_int(decodedata, stagedata + 0x4)
         llength = unsigned_int(decodedata, stagedata + 0x8)
+
         if frame * 6 + ceil(frame / 30) == llength:
             perframe=6
         elif frame * 3 + ceil(frame / 30) == llength:
             perframe=3
         else:
-            raise Exception("Replay file Frame decode error")
+            # KG绀魔机rep爆炸,关我P事哦
+            info['error'].append({'type':"length read error", 'message':str(l+1)+"面，读取到的单面帧数："+str(frame)+ "，读取到的单面长度："+str(llength)+"，帧数计算出的单面长度："+str( frame * 6 + ceil(frame / 30))})
+            llength = frame * 6 + ceil(frame / 30)
+            perframe = 6
+            score[l] = unsigned_int(decodedata, stagedata + llength + 0xc+ work_attr[work]['replaydata_offset']- work_attr[work]['stagedata_offset'])
 
         stage_info['score'] = score[l]
         stage_info['frame'] = frame
@@ -407,6 +411,7 @@ def threp_output(info, work):
     output['player']=info['player']
     output['slowrate'] = info['slowrate']
     output['date'] = info['date']
+    output['error'] = info['error']
 
     for l in range(stage):
         output['stage_score'].append(info['stages'][l]['score']*work_attr[work]['score_rate'])

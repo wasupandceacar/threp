@@ -3,7 +3,7 @@ from threp import THReplay
 if __name__ == '__main__':
 
     # 载入一个replay文件，参数为路径
-    tr=THReplay('G:/th15_ud02d6.rpy')
+    tr=THReplay('th10_02.rpy')
 
     # 获取rep基本信息，包含机体，难度，通关情况，字符串
     # etc. Reimu A normal all
@@ -40,4 +40,4 @@ if __name__ == '__main__':
     print(tr.getError())
 
     #载入一个新的replay文件，参数为路径
-    tr.reload_replay("th15_02.rpy")
+    #tr.reload_replay("th15_02.rpy")

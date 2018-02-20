@@ -36,7 +36,7 @@ def threp_cut(decodedata, work):
     info = {'stages': {}, 'stage': None,
             'character': None, 'ctype': None, 'rank': None, 'clear': None, 'player': '', 'slowrate': None, 'date': None, 'error':[]}
 
-    #f=open('rep1555.txt', 'wb')
+    #f=open('rep100000.txt', 'wb')
     #f.write(decodedata)
     #f.close()
 
@@ -61,7 +61,7 @@ def threp_cut(decodedata, work):
 
     info['date']=str(date[0])+"/"+str(date[1]).zfill(2)+"/"+str(date[2]).zfill(2)+" "+str(date[3]).zfill(2)+":"+str(date[4]).zfill(2)
 
-    stagedata = work_attr[work]['stagedata']
+    stagedata = work_attr[work]['stagedata'] + work_attr[work]['stagedata_offset']
 
     score = list(range(6))
 
@@ -71,7 +71,19 @@ def threp_cut(decodedata, work):
         stage=1
     else:
         for i in range(1, stage):
-            stagedata += work_attr[work]['replaydata_offset'] + unsigned_int(decodedata, stagedata + work_attr[work]['scoredata_offset'])
+            frame = unsigned_int(decodedata, stagedata + 0x4)
+            llength = unsigned_int(decodedata, stagedata + 0x8)
+            if frame * 6 + ceil(frame / 30) == llength:
+                pass
+            elif frame * 3 + ceil(frame / 30) == llength:
+                pass
+            else:
+                # rep单面长度出错
+                info['error'].append({'type': "length read error",
+                                      'message': str(i) + "面，读取到的单面帧数：" + str(frame) + "，读取到的单面长度：" + str(
+                                          llength) + "，帧数计算出的单面长度：" + str(frame * 6 + ceil(frame / 30))})
+                llength = frame * 6 + ceil(frame / 30)
+            stagedata += work_attr[work]['replaydata_offset'] + llength
             score[i - 1] = unsigned_int(decodedata, stagedata + 0xc)
         score[stage - 1] = unsigned_int(decodedata, work_attr[work]['totalscoredata'])
 
@@ -91,11 +103,9 @@ def threp_cut(decodedata, work):
         elif frame * 3 + ceil(frame / 30) == llength:
             perframe=3
         else:
-            # KG绀魔机rep爆炸,关我P事哦
-            info['error'].append({'type':"length read error", 'message':str(l+1)+"面，读取到的单面帧数："+str(frame)+ "，读取到的单面长度："+str(llength)+"，帧数计算出的单面长度："+str( frame * 6 + ceil(frame / 30))})
+            # rep单面长度出错
             llength = frame * 6 + ceil(frame / 30)
             perframe = 6
-            score[l] = unsigned_int(decodedata, stagedata + llength + 0xc+ work_attr[work]['replaydata_offset']- work_attr[work]['stagedata_offset'])
 
         stage_info['score'] = score[l]
         stage_info['frame'] = frame

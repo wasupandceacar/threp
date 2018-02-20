@@ -178,6 +178,8 @@ def hmxrep_cut(dat):
             rep_info['screen_action'].append(''.join(skey))
             rep_info['keyboard_action'].append(kkey)
 
+    rep_info['error']=[]
+
     return rep_info
 
 def yymrep_cut(dat):
@@ -375,6 +377,8 @@ def yymrep_cut(dat):
                 kkey = []
         rep_info['screen_action'].append(''.join(skey))
         rep_info['keyboard_action'].append(kkey)
+
+    rep_info['error'] = []
 
     return rep_info
 

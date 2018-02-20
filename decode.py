@@ -36,7 +36,7 @@ def threp_cut(decodedata, work):
     info = {'stages': {}, 'stage': None,
             'character': None, 'ctype': None, 'rank': None, 'clear': None, 'player': '', 'slowrate': None, 'date': None, 'error':[]}
 
-    #f=open('rep100000.txt', 'wb')
+    #f=open('rep140000.txt', 'wb')
     #f.write(decodedata)
     #f.close()
 
@@ -61,7 +61,9 @@ def threp_cut(decodedata, work):
 
     info['date']=str(date[0])+"/"+str(date[1]).zfill(2)+"/"+str(date[2]).zfill(2)+" "+str(date[3]).zfill(2)+":"+str(date[4]).zfill(2)
 
-    stagedata = work_attr[work]['stagedata'] + work_attr[work]['stagedata_offset']
+    stagedata = work_attr[work]['stagedata']
+
+    stagedata_t = work_attr[work]['stagedata'] + work_attr[work]['stagedata_offset']
 
     score = list(range(6))
 
@@ -71,8 +73,8 @@ def threp_cut(decodedata, work):
         stage=1
     else:
         for i in range(1, stage):
-            frame = unsigned_int(decodedata, stagedata + 0x4)
-            llength = unsigned_int(decodedata, stagedata + 0x8)
+            frame = unsigned_int(decodedata, stagedata_t + 0x4)
+            llength = unsigned_int(decodedata, stagedata_t + 0x8)
             if frame * 6 + ceil(frame / 30) == llength:
                 pass
             elif frame * 3 + ceil(frame / 30) == llength:
@@ -83,6 +85,7 @@ def threp_cut(decodedata, work):
                                       'message': str(i) + "面，读取到的单面帧数：" + str(frame) + "，读取到的单面长度：" + str(
                                           llength) + "，帧数计算出的单面长度：" + str(frame * 6 + ceil(frame / 30))})
                 llength = frame * 6 + ceil(frame / 30)
+            stagedata_t += llength + work_attr[work]['replaydata_offset']
             stagedata += work_attr[work]['replaydata_offset'] + llength
             score[i - 1] = unsigned_int(decodedata, stagedata + 0xc)
         score[stage - 1] = unsigned_int(decodedata, work_attr[work]['totalscoredata'])
@@ -499,7 +502,7 @@ def load(file):
                 raise Exception("Failed when decode replay file")
         else:
             return replay_info
-    except:
+    except Exception as e:
         # 解决th13和14文件头一样问题
         if work == '13':
             work = '14'

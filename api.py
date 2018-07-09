@@ -1,5 +1,5 @@
-from .decode import load
-from .static import init_work_attr
+from decode import load
+from static import init_work_attr
 
 class THReplay:
     def __init__(self, replay_file):

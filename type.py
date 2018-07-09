@@ -1,4 +1,4 @@
-from .static import dzz_attr
+from static import dzz_attr
 
 def th10type(character, ctype, rank, clear):
     if character == 0:

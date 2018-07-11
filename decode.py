@@ -40,9 +40,9 @@ def threp_cut(decodedata, work):
     info = {'stages': {}, 'stage': None,
             'character': None, 'ctype': None, 'rank': None, 'clear': None, 'player': '', 'slowrate': None, 'date': None, 'error':[]}
 
-    #f=open('rep140000.txt', 'wb')
-    #f.write(decodedata)
-    #f.close()
+    # f=open('rep956.txt', 'wb')
+    # f.write(decodedata)
+    # f.close()
 
     stage = decodedata[work_attr[work]['stage']]
     character = unsigned_char(decodedata, work_attr[work]['character'])
@@ -57,9 +57,15 @@ def threp_cut(decodedata, work):
     info['rank'] = rank
     info['clear'] = clear
 
-    for i in range(8):
-        info['player']+=chr(unsigned_char(decodedata, i))
-    info['player']=info['player'].replace(" ", "")
+    if work=='95':
+        for i in range(7, 15):
+            info['player'] += chr(unsigned_char(decodedata, i))
+        info['player'] = info['player'].replace(" ", "")
+        info['character'] = 0
+    else:
+        for i in range(8):
+            info['player'] += chr(unsigned_char(decodedata, i))
+        info['player'] = info['player'].replace(" ", "")
 
     info['slowrate']=round(float(decodedata, work_attr[work]['slowrate']), 2)
 
@@ -71,7 +77,7 @@ def threp_cut(decodedata, work):
 
     score = list(range(6))
 
-    if work=='125' or work=='143':
+    if work=='125' or work=='143' or work=='95':
         score[0] = unsigned_int(decodedata, work_attr[work]['totalscoredata'])
         info['stage']=1
         stage=1
@@ -105,14 +111,18 @@ def threp_cut(decodedata, work):
         frame = unsigned_int(decodedata, stagedata + 0x4)
         llength = unsigned_int(decodedata, stagedata + 0x8)
 
-        if frame * 6 + ceil(frame / 30) == llength:
+        if work=='95':
             perframe=6
-        elif frame * 3 + ceil(frame / 30) == llength:
-            perframe=3
+            frame=int(llength/6)-2
         else:
-            # rep单面长度出错
-            llength = frame * 6 + ceil(frame / 30)
-            perframe = 6
+            if frame * 6 + ceil(frame / 30) == llength:
+                perframe = 6
+            elif frame * 3 + ceil(frame / 30) == llength:
+                perframe = 3
+            else:
+                # rep单面长度出错
+                llength = frame * 6 + ceil(frame / 30)
+                perframe = 6
 
         stage_info['score'] = score[l]
         stage_info['frame'] = frame
@@ -545,9 +555,9 @@ def hyzrep_cut(dat):
     for i in range(0xc0, dlength + 0xc0):
         mergedecodedata[i] = newdecodedata[i - 0xc0]
 
-    f = open('rep9dan3.txt', 'wb')
-    f.write(mergedecodedata)
-    f.close()
+    # f = open('rep9dan3.txt', 'wb')
+    # f.write(mergedecodedata)
+    # f.close()
 
     decodedata = mergedecodedata
 
@@ -640,6 +650,8 @@ def threp_output(info, work):
         character, ctype, rank, clear = th125type(info['character'], info['ctype'], info['rank'], info['clear'])
     elif work=='143':
         character, ctype, rank, clear = th143type(info['character'], info['ctype'], info['rank'], info['clear'])
+    elif work=='95':
+        character, ctype, rank, clear = th95type(info['character'], info['ctype'], info['rank'], info['clear'])
     else:
         raise Exception("Unrecognized work {}".format(work))
 

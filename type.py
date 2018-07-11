@@ -305,3 +305,13 @@ def th143type(character, ctype, rank, clear):
         raise Exception("Unrecognized ctype {}".format(ctype))
     rank_s+=str(rank+1)
     return "", "", rank_s, ""
+
+def th95type(character, ctype, rank, clear):
+    if ctype == 10:
+        rank_s = 'EX-'
+    elif ctype >= 0 and ctype <= 9:
+        rank_s = str(ctype+1) + "-"
+    else:
+        raise Exception("Unrecognized ctype {}".format(ctype))
+    rank_s+=str(rank+1)
+    return "", "", rank_s, ""

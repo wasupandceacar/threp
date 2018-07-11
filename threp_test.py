@@ -3,7 +3,7 @@ from api import THReplay
 if __name__ == '__main__':
 
     # 载入一个replay文件，参数为路径
-    tr=THReplay('th8_ud12d5.rpy')
+    tr=THReplay('th9_09.rpy')
 
     # 获取rep基本信息，包含机体，难度，通关情况，字符串
     # etc. Reimu A normal all

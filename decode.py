@@ -3,7 +3,7 @@ from time import localtime
 
 from utils import unsigned_int, unsigned_char, float
 from common import decode, decompress, entry
-from static import work_attr, skeys, kkeys, hmx_magicnumber, yym_magicnumber, yyc_magicnumber
+from static import work_attr, skeys, kkeys, hmx_magicnumber, yym_magicnumber, yyc_magicnumber, hyz_magicnumber
 from type import *
 
 def threp_decodedata(buffer):
@@ -14,6 +14,8 @@ def threp_decodedata(buffer):
         return yymrep_cut(buffer), '07'
     elif work_magicnumber==yyc_magicnumber:
         return yycrep_cut(buffer), '08'
+    elif work_magicnumber==hyz_magicnumber:
+        return hyzrep_cut(buffer), '09'
     else:
         is_2hu_replay = False
         for key, value in work_attr.items():
@@ -519,6 +521,100 @@ def yycrep_cut(dat):
 
     return rep_info
 
+def hyzrep_cut(dat):
+    rep_info = {}
+
+    decodedata = bytearray(len(dat))
+    mask = dat[0x15]
+    for i in range(0x18):
+        decodedata[i] = dat[i]
+    length = unsigned_int(dat, 0x0c)
+    for i in range(0x18, length):
+        decodedata[i] = (dat[i] + 0x100 - mask) & 0xff
+        mask = (mask + 0x07) & 0xff
+
+    rawdata = bytearray(decodedata[0xc0:])
+
+    dlength = unsigned_int(decodedata, 0x1c)
+    newdecodedata = bytearray(dlength)
+    decompress(rawdata, newdecodedata, length - 0xc0)
+
+    mergedecodedata = bytearray(dlength + 0xc0)
+    for i in range(0xc0):
+        mergedecodedata[i] = decodedata[i]
+    for i in range(0xc0, dlength + 0xc0):
+        mergedecodedata[i] = newdecodedata[i - 0xc0]
+
+    f = open('rep9dan3.txt', 'wb')
+    f.write(mergedecodedata)
+    f.close()
+
+    decodedata = mergedecodedata
+
+    date = decodedata[0xc4:0xc4 + 8]
+    name = decodedata[0xcd:0xcd + 8]
+    rank = decodedata[0xd7]
+    mode = decodedata[0x1e4]+decodedata[0x1e5]
+
+    rep_info['date'] = date.strip().decode()
+    rep_info['player'] = name.strip().decode()
+    chars = ("Reimu", "Marisa", "Sakuya", "Youmu", "Reisen", "Cirno", "Lyrica", "Mystia", "Tewi", "Yuka", "Aya", "Medicine", "Komachi", "Sikieiki", "Marlin", "Lunasa")
+    levels = ("Easy", "Normal", "Hard", "Lunatic", "Extra")
+    modes = ('Story mode', 'Extra mode', 'Human vs Human', 'Human vs Com', 'Com vs Human', 'Com vs Com')
+    rep_info['base_info'] = levels[rank] + " " + modes[mode]
+    rep_info['slowrate'] = 0.000
+
+    rep_info['stage_score'] = []
+    rep_info['screen_action'] = []
+    rep_info['keyboard_action'] = []
+
+    is_match = (unsigned_int(decodedata, 0x44) != 0)
+
+    stage_offsets = []
+
+    if is_match:
+        stage_start = unsigned_int(decodedata, 0x44)
+        stage_end = unsigned_int(decodedata, 0x6c)
+        stage_offsets.append(stage_start)
+        stage_offsets.append(stage_end)
+        rep_info['stage_score'].append(unsigned_int(decodedata, stage_start) * 10)
+        rep_info['base_info']+="\n"+chars[decodedata[stage_start+6]]+" vs "+chars[decodedata[stage_end+6]]
+    else:
+        stage_end = unsigned_int(decodedata, 0x48)
+
+        for i in range(9):
+            stage_offset = unsigned_int(decodedata, 0x20 + i * 0x4)
+            if stage_offset != 0:
+                rep_info['stage_score'].append(unsigned_int(decodedata, stage_offset) * 10)
+                ai_stage_offset = unsigned_int(decodedata, 0x48 + i * 0x4)
+                rep_info['base_info'] += "\n" + chars[decodedata[stage_offset + 6]] + " vs " + chars[decodedata[ai_stage_offset + 6]]
+                stage_offsets.append(stage_offset)
+
+        stage_offsets.append(stage_end)
+
+    for i in range(len(stage_offsets) - 1):
+        start = stage_offsets[i] + 0x20
+        frame = int((stage_offsets[i + 1] - stage_offsets[i] - 0x20) / 4)
+        skey = []
+        kkey = []
+        for j in range(frame):
+            if (j % 60 == 0):
+                skey.append('[{0:<6}]'.format(j // 60))
+            framekey = unsigned_int(decodedata, start + j * 4) >> 4 & 0xf
+            skey.append(skeys[framekey])
+            kkey.append(kkeys[framekey])
+            if ((j + 1) % 60 == 0):
+                rep_info['screen_action'].append(''.join(skey))
+                rep_info['keyboard_action'].append(kkey)
+                skey = []
+                kkey = []
+        rep_info['screen_action'].append(''.join(skey))
+        rep_info['keyboard_action'].append(kkey)
+
+    rep_info['error'] = []
+
+    return rep_info
+
 def threp_output(info, work):
     stage = info['stage']
 
@@ -610,8 +706,8 @@ def load(file):
         work = 'noob'
         file, buffer, flength = entry(file)
         decodedata, work = threp_decodedata(buffer)
-        # 红魔乡/妖妖梦/永夜抄
-        if work=='06' or work=='07' or work=='08':
+        # 红魔乡/妖妖梦/永夜抄/花映冢
+        if work=='06' or work=='07' or work=='08' or work=='09':
             return decodedata
         replay_info = threp_output(threp_cut(decodedata, work), work)
         if len(replay_info['screen_action'])==0:

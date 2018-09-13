@@ -1,4 +1,5 @@
 from static import dzz_attr
+from static import week_array
 
 def th10type(character, ctype, rank, clear):
     if character == 0:
@@ -315,3 +316,14 @@ def th95type(character, ctype, rank, clear):
         raise Exception("Unrecognized ctype {}".format(ctype))
     rank_s+=str(rank+1)
     return "", "", rank_s, ""
+
+def th165type(character, ctype, rank, clear):
+    if 0 <= rank and rank <= 6:
+        rank_s = ""
+    elif 7 <= rank and rank <= 13:
+        rank_s = 'Inner-'
+    elif 14 <= rank and rank <= 20:
+        rank_s = 'Nightmare-'
+    else:
+        raise Exception("Unrecognize ctype {}".format(ctype))
+    return "Usami", "", rank_s + week_array[rank % 7] + "-" + str(ctype+1), ""

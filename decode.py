@@ -77,7 +77,7 @@ def threp_cut(decodedata, work):
 
     score = list(range(6))
 
-    if work=='125' or work=='143' or work=='95':
+    if work=='125' or work=='143' or work=='95' or work=='165':
         score[0] = unsigned_int(decodedata, work_attr[work]['totalscoredata'])
         info['stage']=1
         stage=1
@@ -111,7 +111,7 @@ def threp_cut(decodedata, work):
         frame = unsigned_int(decodedata, stagedata + 0x4)
         llength = unsigned_int(decodedata, stagedata + 0x8)
 
-        if work=='95':
+        if work=='95' or work=='165':
             perframe=6
             frame=int(llength/6)-2
         else:
@@ -652,6 +652,8 @@ def threp_output(info, work):
         character, ctype, rank, clear = th143type(info['character'], info['ctype'], info['rank'], info['clear'])
     elif work=='95':
         character, ctype, rank, clear = th95type(info['character'], info['ctype'], info['rank'], info['clear'])
+    elif work=='165':
+        character, ctype, rank, clear = th165type(info['character'], info['ctype'], info['rank'], info['clear'])
     else:
         raise Exception("Unrecognized work {}".format(work))
 

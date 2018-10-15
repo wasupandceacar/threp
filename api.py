@@ -33,5 +33,8 @@ class THReplay:
     def getDate(self):
         return self.__replay_info['date']
 
+    def getFrameCount(self):
+        return self.__replay_info['frame_count']
+
     def getError(self):
         return self.__replay_info['error']

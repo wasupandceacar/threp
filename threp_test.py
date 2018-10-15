@@ -1,9 +1,10 @@
 from api import THReplay
+from pprint import pprint
 
 if __name__ == '__main__':
 
     # 载入一个replay文件，参数为路径
-    tr=THReplay('th165_01.rpy')
+    tr=THReplay('th16_04.rpy')
 
     # 获取rep基本信息，包含机体，难度，通关情况，字符串
     # etc. Reimu A normal all
@@ -23,7 +24,7 @@ if __name__ == '__main__':
     # etc.
     # 其中一个子list：['→', '→', '→', '→', '→', '→', '→', '→', '→', '→', '→', '→', '→', '→', '→', '→', '↑', '↑', '↑', '↑', '↑', '↑', '↑', '↑', '↑', '↑', '↑', '↑', '↑', '↑', '↑', '↑←', '↑←', '↑←', '↑←', '↑←', '↑←', '↑←', '↑←', '↑←', '↑', '↑', '○', '○', '○', '○', '○', '○', '○', '○', '○', '○', '○', '○', '○', '○', '○', '○', '○', '○']
     # 每个字符串记录了这帧按下的方向键，箭头表示方向，圆圈表示没按
-    #print(tr.getKeyboardAction())
+    # pprint(tr.getKeyboardAction())
 
     # 获取rep的机签，字符串
     # etc. WASUP
@@ -38,6 +39,10 @@ if __name__ == '__main__':
     print(tr.getDate())
 
     print(tr.getError())
+
+    # 获取rep的总帧数，整数
+    # etc. 84565
+    print(tr.getFrameCount())
 
     #载入一个新的replay文件，参数为路径
     #tr.reload_replay("th15_02.rpy")

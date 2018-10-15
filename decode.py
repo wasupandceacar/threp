@@ -174,6 +174,7 @@ def hmxrep_cut(dat):
     rep_info['screen_action'] = []
     rep_info['keyboard_action'] = []
 
+    total_frame_count=0
     for i in range(7):
         stage_offset=unsigned_int(decodedata, 0x34 + i * 0x4)
         if stage_offset!=0:
@@ -202,10 +203,13 @@ def hmxrep_cut(dat):
                         skey = []
                         kkey = []
                     frame_count+=1
+                    total_frame_count += 1
             rep_info['screen_action'].append(''.join(skey))
             rep_info['keyboard_action'].append(kkey)
 
     rep_info['error']=[]
+
+    rep_info['frame_count']=total_frame_count
 
     return rep_info
 
@@ -386,6 +390,7 @@ def yymrep_cut(dat):
 
         stage_offsets.append(stage_end)
 
+    total_frame_count=0
     for i in range(len(stage_offsets)-1):
         start = stage_offsets[i] + 0x28
         frame = int((stage_offsets[i+1]-stage_offsets[i]-0x28)/4)
@@ -402,10 +407,13 @@ def yymrep_cut(dat):
                 rep_info['keyboard_action'].append(kkey)
                 skey = []
                 kkey = []
+            total_frame_count+=1
         rep_info['screen_action'].append(''.join(skey))
         rep_info['keyboard_action'].append(kkey)
 
     rep_info['error'] = []
+
+    rep_info['frame_count'] = total_frame_count
 
     return rep_info
 
@@ -433,7 +441,7 @@ def yycrep_cut(dat):
     for i in range(0x68, dlength+0x68):
         mergedecodedata[i]=newdecodedata[i-0x68]
 
-    # f = open('rep8P.txt', 'wb')
+    # f = open('rep8f.txt', 'wb')
     # f.write(mergedecodedata)
     # f.close()
 
@@ -508,15 +516,17 @@ def yycrep_cut(dat):
 
         stage_offsets.append(stage_end)
 
+    total_frame_count=0
+
     for i in range(len(stage_offsets) - 1):
         start = stage_offsets[i] + 0x20
-        frame = int((stage_offsets[i + 1] - stage_offsets[i] - 0x20) / 4)
+        frame = int((stage_offsets[i + 1] - stage_offsets[i] - 0x20) / 2)
         skey = []
         kkey = []
         for j in range(frame):
             if (j % 60 == 0):
                 skey.append('[{0:<6}]'.format(j // 60))
-            framekey = unsigned_int(decodedata, start + j * 4) >> 4 & 0xf
+            framekey = unsigned_int(decodedata, start + j * 2) >> 4 & 0xf
             skey.append(skeys[framekey])
             kkey.append(kkeys[framekey])
             if ((j + 1) % 60 == 0):
@@ -524,10 +534,13 @@ def yycrep_cut(dat):
                 rep_info['keyboard_action'].append(kkey)
                 skey = []
                 kkey = []
+            total_frame_count+=1
         rep_info['screen_action'].append(''.join(skey))
         rep_info['keyboard_action'].append(kkey)
 
     rep_info['error'] = []
+
+    rep_info['frame_count'] = total_frame_count
 
     return rep_info
 
@@ -602,15 +615,17 @@ def hyzrep_cut(dat):
 
         stage_offsets.append(stage_end)
 
+    total_frame_count=0
+
     for i in range(len(stage_offsets) - 1):
         start = stage_offsets[i] + 0x20
-        frame = int((stage_offsets[i + 1] - stage_offsets[i] - 0x20) / 4)
+        frame = int((stage_offsets[i + 1] - stage_offsets[i] - 0x20) / 2)
         skey = []
         kkey = []
         for j in range(frame):
             if (j % 60 == 0):
                 skey.append('[{0:<6}]'.format(j // 60))
-            framekey = unsigned_int(decodedata, start + j * 4) >> 4 & 0xf
+            framekey = unsigned_int(decodedata, start + j * 2) >> 4 & 0xf
             skey.append(skeys[framekey])
             kkey.append(kkeys[framekey])
             if ((j + 1) % 60 == 0):
@@ -618,10 +633,13 @@ def hyzrep_cut(dat):
                 rep_info['keyboard_action'].append(kkey)
                 skey = []
                 kkey = []
+            total_frame_count+=1
         rep_info['screen_action'].append(''.join(skey))
         rep_info['keyboard_action'].append(kkey)
 
     rep_info['error'] = []
+
+    rep_info['frame_count'] = total_frame_count
 
     return rep_info
 
@@ -670,6 +688,8 @@ def threp_output(info, work):
     output['screen_action']=[]
     output['keyboard_action']=[]
 
+    total_frame_count=0
+
     # 文花帖DS的rep
     if work=='125':
         for l in range(stage):
@@ -690,6 +710,7 @@ def threp_output(info, work):
                     output['keyboard_action'].append(kkey)
                     skey = []
                     kkey = []
+                total_frame_count+=1
             output['screen_action'].append(''.join(skey))
             output['keyboard_action'].append(kkey)
     else:
@@ -710,8 +731,11 @@ def threp_output(info, work):
                     output['keyboard_action'].append(kkey)
                     skey = []
                     kkey = []
+                total_frame_count+=1
             output['screen_action'].append(''.join(skey))
             output['keyboard_action'].append(kkey)
+
+    output['frame_count']=total_frame_count
 
     return output
 

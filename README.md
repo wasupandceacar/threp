@@ -49,9 +49,13 @@ threp用于解析东方project系列游戏的replay文件，即游戏回放文�
     # etc. 2015/02/17 22:23
     print(tr.getDate())
 
-	# 获取解析错误信息，list，包含一些字典
+    # 获取解析错误信息，list，包含一些字典
     # etc. 目前只有一种错误，就是读取单面长度出错，读取帧数错误暂时无法处理
     print(tr.getError())
+
+    # 获取rep的总帧数，整数
+    # etc. 84565
+    print(tr.getFrameCount())
 
     #载入一个新的replay文件，参数为路径
     tr.reload_replay("th15_02.rpy")

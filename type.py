@@ -1,5 +1,5 @@
-from static import dzz_attr
-from static import week_array
+from .static import dzz_attr
+from .static import week_array
 
 def th10type(character, ctype, rank, clear):
     if character == 0:

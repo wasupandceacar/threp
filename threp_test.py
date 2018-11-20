@@ -4,7 +4,7 @@ from pprint import pprint
 if __name__ == '__main__':
 
     # 载入一个replay文件，参数为路径
-    tr=THReplay('th16_04.rpy')
+    tr=THReplay('th95_10.rpy')
 
     # 获取rep基本信息，包含机体，难度，通关情况，字符串
     # etc. Reimu A normal all
@@ -43,6 +43,22 @@ if __name__ == '__main__':
     # 获取rep的总帧数，整数
     # etc. 84565
     print(tr.getFrameCount())
+
+    # 获取rep中按下Z键的帧数的list，帧数从1开始数
+    # etc. [63, 98, 136]
+    print(tr.getZ())
+
+    # 获取rep中按下X键的帧数的list，帧数从1开始数
+    # etc. [193, 480, 766]
+    print(tr.getX())
+
+    # 获取rep中按下C键的帧数的list，帧数从1开始数，这个按键从TH128开始记录，TH125及以前无记录
+    # etc. [1046, 1260]
+    print(tr.getC())
+
+    # 获取rep中按下Shift键的帧数的list，帧数从1开始数
+    # etc. [1495, 1532, 1568]
+    print(tr.getShift())
 
     #载入一个新的replay文件，参数为路径
     #tr.reload_replay("th15_02.rpy")

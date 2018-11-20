@@ -1,10 +1,10 @@
 from math import ceil
 from time import localtime
 
-from .utils import unsigned_int, unsigned_char, float
-from .common import decode, decompress, entry
-from .static import work_attr, skeys, kkeys, hmx_magicnumber, yym_magicnumber, yyc_magicnumber, hyz_magicnumber
-from .type import *
+from utils import unsigned_int, unsigned_char, float
+from common import decode, decompress, entry
+from static import work_attr, skeys, kkeys, hmx_magicnumber, yym_magicnumber, yyc_magicnumber, hyz_magicnumber
+from type import *
 
 def threp_decodedata(buffer):
     work_magicnumber = unsigned_int(buffer, 0)
@@ -40,7 +40,7 @@ def threp_cut(decodedata, work):
     info = {'stages': {}, 'stage': None,
             'character': None, 'ctype': None, 'rank': None, 'clear': None, 'player': '', 'slowrate': None, 'date': None, 'error':[]}
 
-    # f=open('rep956.txt', 'wb')
+    # f=open('rep950555.txt', 'wb')
     # f.write(decodedata)
     # f.close()
 
@@ -688,6 +688,11 @@ def threp_output(info, work):
     output['screen_action']=[]
     output['keyboard_action']=[]
 
+    output['z_frame'] = []
+    output['x_frame'] = []
+    output['c_frame'] = []
+    output['shift_frame'] = []
+
     total_frame_count=0
 
     # 文花帖DS的rep
@@ -711,6 +716,14 @@ def threp_output(info, work):
                     skey = []
                     kkey = []
                 total_frame_count+=1
+                # 检测 z x c shift
+                left_hand_flag = unsigned_int(replaydata, i * 3) >> 8 & 0xf
+                if left_hand_flag == 1:
+                    output['z_frame'].append(total_frame_count)
+                if left_hand_flag == 2:
+                    output['x_frame'].append(total_frame_count)
+                if left_hand_flag == 4:
+                    output['shift_frame'].append(total_frame_count)
             output['screen_action'].append(''.join(skey))
             output['keyboard_action'].append(kkey)
     else:
@@ -732,6 +745,37 @@ def threp_output(info, work):
                     skey = []
                     kkey = []
                 total_frame_count+=1
+                # 检测 z x c shift
+                left_hand_flag = unsigned_int(replaydata, i * 6) >> 16 & 0xf
+                c_flag = unsigned_int(replaydata, i * 6) >> 24 & 0xf
+                # 文花帖
+                if work == '95':
+                    if left_hand_flag == 2:
+                        output['z_frame'].append(total_frame_count)
+                    if left_hand_flag == 1:
+                        output['x_frame'].append(total_frame_count)
+                    if left_hand_flag == 5:
+                        output['shift_frame'].append(total_frame_count)
+                else:
+                    if left_hand_flag == 1:
+                        output['z_frame'].append(total_frame_count)
+                    if left_hand_flag == 2:
+                        output['x_frame'].append(total_frame_count)
+                    # 大战争
+                    if work == '128':
+                        if c_flag == 2:
+                            output['c_frame'].append(total_frame_count)
+                    # 神灵庙 辉针城 天邪鬼 绀珠传 天空璋
+                    elif work == '13' or work == '14' or work == '143' or work == '15' or work == '16':
+                        if c_flag == 10:
+                            output['c_frame'].append(total_frame_count)
+                    # 风神录
+                    if work == '10':
+                        if left_hand_flag == 4:
+                            output['shift_frame'].append(total_frame_count)
+                    else:
+                        if left_hand_flag == 8:
+                            output['shift_frame'].append(total_frame_count)
             output['screen_action'].append(''.join(skey))
             output['keyboard_action'].append(kkey)
 

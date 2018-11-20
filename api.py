@@ -1,5 +1,5 @@
-from .decode import load
-from .static import init_work_attr
+from decode import load
+from static import init_work_attr
 
 class THReplay:
     def __init__(self, replay_file):
@@ -38,3 +38,15 @@ class THReplay:
 
     def getError(self):
         return self.__replay_info['error']
+
+    def getZ(self):
+        return self.__replay_info['z_frame']
+
+    def getX(self):
+        return self.__replay_info['x_frame']
+
+    def getC(self):
+        return self.__replay_info['c_frame']
+
+    def getShift(self):
+        return self.__replay_info['shift_frame']

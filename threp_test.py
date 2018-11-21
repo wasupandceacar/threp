@@ -1,10 +1,10 @@
-from api import THReplay
+from .api import THReplay
 from pprint import pprint
 
 if __name__ == '__main__':
 
     # 载入一个replay文件，参数为路径
-    tr=THReplay('th95_10.rpy')
+    tr=THReplay('th6_15.rpy')
 
     # 获取rep基本信息，包含机体，难度，通关情况，字符串
     # etc. Reimu A normal all
@@ -38,6 +38,8 @@ if __name__ == '__main__':
     # etc. 2015/02/17 22:23
     print(tr.getDate())
 
+    # 获取解析错误信息，list，包含一些字典
+    # etc. 目前只有一种错误，就是读取单面长度出错，读取帧数错误暂时无法处理
     print(tr.getError())
 
     # 获取rep的总帧数，整数

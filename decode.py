@@ -1,10 +1,10 @@
 from math import ceil
 from time import localtime
 
-from utils import unsigned_int, unsigned_char, float
-from common import decode, decompress, entry
-from static import work_attr, skeys, kkeys, hmx_magicnumber, yym_magicnumber, yyc_magicnumber, hyz_magicnumber
-from type import *
+from .utils import unsigned_int, unsigned_char, float
+from .common import decode, decompress, entry
+from .static import work_attr, skeys, kkeys, hmx_magicnumber, yym_magicnumber, yyc_magicnumber, hyz_magicnumber
+from .type import *
 
 def threp_decodedata(buffer):
     work_magicnumber = unsigned_int(buffer, 0)
@@ -140,6 +140,7 @@ def threp_cut(decodedata, work):
 
     return info
 
+# 红魔乡
 def hmxrep_cut(dat):
     rep_info = {}
 
@@ -151,9 +152,9 @@ def hmxrep_cut(dat):
         decodedata[i] = (dat[i] + 0x100 - mask) & 0xff
         mask = (mask + 0x07) & 0xff
 
-    #f=open('rep66.txt', 'wb')
-    #f.write(decodedata)
-    #f.close()
+    # f=open('rep6rrrr.txt', 'wb')
+    # f.write(decodedata)
+    # f.close()
 
     date = decodedata[0x10:0x10 + 8]
     name = decodedata[0x19:0x19 + 8]
@@ -174,7 +175,13 @@ def hmxrep_cut(dat):
     rep_info['screen_action'] = []
     rep_info['keyboard_action'] = []
 
+    rep_info['z_frame'] = []
+    rep_info['x_frame'] = []
+    rep_info['c_frame'] = []
+    rep_info['shift_frame'] = []
+
     total_frame_count=0
+
     for i in range(7):
         stage_offset=unsigned_int(decodedata, 0x34 + i * 0x4)
         if stage_offset!=0:
@@ -184,6 +191,14 @@ def hmxrep_cut(dat):
             i=0x0
             frame=unsigned_int(decodedata, replay_offset + i)
             while frame!=9999999:
+                # 检测 z x c shift
+                left_press = unsigned_int(decodedata, replay_offset + i + 0x4) & 0xf
+                if left_press == 1:
+                    rep_info['z_frame'].append(frame)
+                if left_press == 2:
+                    rep_info['x_frame'].append(frame)
+                if left_press == 4:
+                    rep_info['shift_frame'].append(frame)
                 press=(unsigned_int(decodedata, replay_offset + i + 0x4) >> 4) & 0xf
                 i+=0x8
                 stage_replaydata.append([frame, press])
@@ -213,6 +228,7 @@ def hmxrep_cut(dat):
 
     return rep_info
 
+# 妖妖梦
 def yymrep_cut(dat):
     rep_info = {}
 
@@ -246,7 +262,8 @@ def yymrep_cut(dat):
 
     rep_length=unsigned_int(dat, 0x18)
 
-    decodedata=bytearray(rep_length)
+    # rep长度增长，处理某些短rep长度不够的bug
+    decodedata=bytearray(rep_length+0x54)
     for i in range(0x54):
         decodedata[i] = dat[i]
 
@@ -337,7 +354,7 @@ def yymrep_cut(dat):
             v34=(v34+1) & 0x1fff
             v10 += 1
 
-    # f = open('rep71ph.txt', 'wb')
+    # f = open('rep73.txt', 'wb')
     # f.write(decodedata)
     # f.close()
 
@@ -390,7 +407,13 @@ def yymrep_cut(dat):
 
         stage_offsets.append(stage_end)
 
+    rep_info['z_frame'] = []
+    rep_info['x_frame'] = []
+    rep_info['c_frame'] = []
+    rep_info['shift_frame'] = []
+
     total_frame_count=0
+
     for i in range(len(stage_offsets)-1):
         start = stage_offsets[i] + 0x28
         frame = int((stage_offsets[i+1]-stage_offsets[i]-0x28)/4)
@@ -408,6 +431,14 @@ def yymrep_cut(dat):
                 skey = []
                 kkey = []
             total_frame_count+=1
+            # 检测 z x c shift
+            left_hand_flag = unsigned_int(decodedata, start + j * 4) & 0xf
+            if left_hand_flag == 1:
+                rep_info['z_frame'].append(total_frame_count)
+            if left_hand_flag == 2:
+                rep_info['x_frame'].append(total_frame_count)
+            if left_hand_flag == 4:
+                rep_info['shift_frame'].append(total_frame_count)
         rep_info['screen_action'].append(''.join(skey))
         rep_info['keyboard_action'].append(kkey)
 
@@ -415,8 +446,13 @@ def yymrep_cut(dat):
 
     rep_info['frame_count'] = total_frame_count
 
+    rep_info['z_frame'] = filter_constant_frame(rep_info['z_frame'])
+    rep_info['x_frame'] = filter_constant_frame(rep_info['x_frame'])
+    rep_info['shift_frame'] = filter_constant_frame(rep_info['shift_frame'])
+
     return rep_info
 
+# 永夜抄
 def yycrep_cut(dat):
     rep_info = {}
 
@@ -441,7 +477,7 @@ def yycrep_cut(dat):
     for i in range(0x68, dlength+0x68):
         mergedecodedata[i]=newdecodedata[i-0x68]
 
-    # f = open('rep8f.txt', 'wb')
+    # f = open('rep8rrr.txt', 'wb')
     # f.write(mergedecodedata)
     # f.close()
 
@@ -516,6 +552,11 @@ def yycrep_cut(dat):
 
         stage_offsets.append(stage_end)
 
+    rep_info['z_frame'] = []
+    rep_info['x_frame'] = []
+    rep_info['c_frame'] = []
+    rep_info['shift_frame'] = []
+
     total_frame_count=0
 
     for i in range(len(stage_offsets) - 1):
@@ -535,6 +576,14 @@ def yycrep_cut(dat):
                 skey = []
                 kkey = []
             total_frame_count+=1
+            # 检测 z x c shift
+            left_hand_flag = unsigned_int(decodedata, start + j * 2) & 0xf
+            if left_hand_flag == 1:
+                rep_info['z_frame'].append(total_frame_count)
+            if left_hand_flag == 2:
+                rep_info['x_frame'].append(total_frame_count)
+            if left_hand_flag == 4:
+                rep_info['shift_frame'].append(total_frame_count)
         rep_info['screen_action'].append(''.join(skey))
         rep_info['keyboard_action'].append(kkey)
 
@@ -542,8 +591,13 @@ def yycrep_cut(dat):
 
     rep_info['frame_count'] = total_frame_count
 
+    rep_info['z_frame'] = filter_constant_frame(rep_info['z_frame'])
+    rep_info['x_frame'] = filter_constant_frame(rep_info['x_frame'])
+    rep_info['shift_frame'] = filter_constant_frame(rep_info['shift_frame'])
+
     return rep_info
 
+# 花映冢
 def hyzrep_cut(dat):
     rep_info = {}
 
@@ -568,7 +622,7 @@ def hyzrep_cut(dat):
     for i in range(0xc0, dlength + 0xc0):
         mergedecodedata[i] = newdecodedata[i - 0xc0]
 
-    # f = open('rep9dan3.txt', 'wb')
+    # f = open('rep9rrr.txt', 'wb')
     # f.write(mergedecodedata)
     # f.close()
 
@@ -615,6 +669,11 @@ def hyzrep_cut(dat):
 
         stage_offsets.append(stage_end)
 
+    rep_info['z_frame'] = []
+    rep_info['x_frame'] = []
+    rep_info['c_frame'] = []
+    rep_info['shift_frame'] = []
+
     total_frame_count=0
 
     for i in range(len(stage_offsets) - 1):
@@ -634,6 +693,14 @@ def hyzrep_cut(dat):
                 skey = []
                 kkey = []
             total_frame_count+=1
+            # 检测 z x c shift
+            left_hand_flag = unsigned_int(decodedata, start + j * 2) & 0xf
+            if left_hand_flag == 1:
+                rep_info['z_frame'].append(total_frame_count)
+            if left_hand_flag == 2:
+                rep_info['x_frame'].append(total_frame_count)
+            if left_hand_flag == 4:
+                rep_info['shift_frame'].append(total_frame_count)
         rep_info['screen_action'].append(''.join(skey))
         rep_info['keyboard_action'].append(kkey)
 
@@ -641,7 +708,24 @@ def hyzrep_cut(dat):
 
     rep_info['frame_count'] = total_frame_count
 
+    rep_info['z_frame'] = filter_constant_frame(rep_info['z_frame'])
+    rep_info['x_frame'] = filter_constant_frame(rep_info['x_frame'])
+    rep_info['shift_frame'] = filter_constant_frame(rep_info['shift_frame'])
+
     return rep_info
+
+# 过滤按住的连续帧为按下帧
+# 永夜抄 花映冢
+def filter_constant_frame(frame_list):
+    result_frame_list=[]
+    for i in range(len(frame_list)):
+        frame=frame_list[i]
+        if i==0:
+            result_frame_list.append(frame)
+        else:
+            if frame!=frame_list[i-1]+1:
+                result_frame_list.append(frame)
+    return result_frame_list
 
 def threp_output(info, work):
     stage = info['stage']

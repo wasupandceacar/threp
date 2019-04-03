@@ -1,4 +1,4 @@
-from math import ceil
+from math import ceil, floor
 from time import localtime
 
 from .utils import unsigned_int, unsigned_char, float
@@ -36,11 +36,11 @@ def threp_decodedata(buffer):
         else:
             raise Exception("Unrecognized replay file")
 
-def threp_cut(decodedata, work):
+def threp_cut(decodedata, work, frameignore = False):
     info = {'stages': {}, 'stage': None,
             'character': None, 'ctype': None, 'rank': None, 'clear': None, 'player': '', 'slowrate': None, 'date': None, 'error':[]}
 
-    # f=open('rep950555.txt', 'wb')
+    # f=open('rep10sh.txt', 'wb')
     # f.write(decodedata)
     # f.close()
 
@@ -90,11 +90,25 @@ def threp_cut(decodedata, work):
             elif frame * 3 + ceil(frame / 30) == llength:
                 pass
             else:
-                # rep单面长度出错
-                info['error'].append({'type': "length read error",
-                                      'message': str(i) + "面，读取到的单面帧数：" + str(frame) + "，读取到的单面长度：" + str(
-                                          llength) + "，帧数计算出的单面长度：" + str(frame * 6 + ceil(frame / 30))})
-                llength = frame * 6 + ceil(frame / 30)
+                if frameignore:
+                    # 长度再次出错，我佛了
+                    if llength < 40000:
+                        llength += 65536
+                        # 忽略帧数，强制保留单面长度
+                        info['error'].append({'type': "length so short error",
+                                              'message': str(i) + "面，读取到的单面长度：" + str(
+                                                  llength) + "，判断为长度出错，尝试自动补正"})
+                    frame = true_frame(llength)
+                    # 忽略帧数，强制保留单面长度
+                    info['error'].append({'type': "frame read error",
+                                          'message': str(i) + "面，读取到的单面帧数：" + str(frame) + "，读取到的单面长度：" + str(
+                                              llength) + "，帧数计算出的单面长度：" + str(frame * 6 + ceil(frame / 30)) + "，判断为单面帧数出错"})
+                else:
+                    # rep单面长度出错
+                    llength = frame * 6 + ceil(frame / 30)
+                    info['error'].append({'type': "length read error",
+                                          'message': str(i) + "面，读取到的单面帧数：" + str(frame) + "，读取到的单面长度：" + str(
+                                              llength) + "，帧数计算出的单面长度：" + str(frame * 6 + ceil(frame / 30)) + "，判断为单面长度出错"})
             stagedata_t += llength + work_attr[work]['replaydata_offset']
             stagedata += work_attr[work]['replaydata_offset'] + llength
             score[i - 1] = unsigned_int(decodedata, stagedata + 0xc)
@@ -120,9 +134,16 @@ def threp_cut(decodedata, work):
             elif frame * 3 + ceil(frame / 30) == llength:
                 perframe = 3
             else:
-                # rep单面长度出错
-                llength = frame * 6 + ceil(frame / 30)
-                perframe = 6
+                if frameignore:
+                    # 忽略帧数，强制保留单面长度
+                    if llength < 40000:
+                        llength += 65536
+                    frame = true_frame(llength)
+                    perframe = 6
+                else:
+                    # rep单面长度出错
+                    llength = frame * 6 + ceil(frame / 30)
+                    perframe = 6
 
         stage_info['score'] = score[l]
         stage_info['frame'] = frame
@@ -715,7 +736,8 @@ def hyzrep_cut(dat):
     return rep_info
 
 # 过滤按住的连续帧为按下帧
-# 永夜抄 花映冢
+# 只用于shift z x
+# 妖妖梦 永夜抄 花映冢
 def filter_constant_frame(frame_list):
     result_frame_list=[]
     for i in range(len(frame_list)):
@@ -765,6 +787,12 @@ def threp_output(info, work):
     output['slowrate'] = info['slowrate']
     output['date'] = info['date']
     output['error'] = info['error']
+
+    # 辉针城单面帧数出错，然后因文件头转到神灵庙的bug
+    # 由于转到神灵庙，clear情况会读取为0
+    if info['clear'] == 0:
+        # 加入新的error
+        output['error'].append({'type': "DDC frame error"})
 
     for l in range(stage):
         output['stage_score'].append(info['stages'][l]['score']*work_attr[work]['score_rate'])
@@ -820,6 +848,7 @@ def threp_output(info, work):
             for i in range(frame):
                 if (i % 60 == 0):
                     skey.append('[{0:<6}]'.format(i // 60))
+                #print("stage", l, hex(i * 6))
                 framekey = unsigned_int(replaydata, i * 6) >> 4 & 0xf
                 skey.append(skeys[framekey])
                 kkey.append(kkeys[framekey])
@@ -867,6 +896,24 @@ def threp_output(info, work):
 
     return output
 
+def check_DDC_frame_error(replay_info):
+    for error in replay_info["error"]:
+        if error["type"] == "DDC frame error":
+            return True
+    return False
+
+# 根据长度获取正确的帧数
+def true_frame(llength):
+    frame = floor(llength / (6 + 1/30))
+    if frame * 6 + ceil(frame / 30) == llength:
+        return frame
+    else:
+        # 暴搜，，，
+        for i in range(frame-10, frame+10):
+            if i * 6 + ceil(i / 30) == llength:
+                return i
+        raise Exception("Cant correct the frame length")
+
 def load(file):
     try:
         work = 'noob'
@@ -883,9 +930,20 @@ def load(file):
                 return threp_output(threp_cut(decodedata, work), work)
             elif work=='14':
                 work='13'
+                # 解决辉针城单面长度出错再跳转问题
+                replay_info2 = threp_output(threp_cut(decodedata, work), work)
+                if check_DDC_frame_error(replay_info2):
+                    # 再次跳转，并强制矫正单面frame长度
+                    work='14'
+                    return threp_output(threp_cut(decodedata, work, True), work)
                 return threp_output(threp_cut(decodedata, work), work)
             else:
-                raise Exception("Failed when decode replay file")
+                try:
+                    # 尝试矫正frame长度重试
+                    return threp_output(threp_cut(decodedata, work, True), work)
+                except:
+                    # 没救了，等死吧
+                    raise Exception("Failed when decode replay file")
         else:
             return replay_info
     except Exception as e:
@@ -895,6 +953,22 @@ def load(file):
             return threp_output(threp_cut(decodedata, work), work)
         elif work == '14':
             work = '13'
-            return threp_output(threp_cut(decodedata, work), work)
+            # 解决辉针城单面长度出错再跳转问题
+            try:
+                replay_info2 = threp_output(threp_cut(decodedata, work), work)
+                if check_DDC_frame_error(replay_info2):
+                    # 再次跳转，并强制保留单面frame长度
+                    work = '14'
+                    return threp_output(threp_cut(decodedata, work, True), work)
+                else:
+                    return threp_output(threp_cut(decodedata, work), work)
+            except:
+                raise Exception("Maybe its a DDC broken replay")
         else:
-            raise Exception("Failed to open replay file")
+            try:
+                # 尝试矫正frame长度重试
+                return threp_output(threp_cut(decodedata, work, True), work)
+            except:
+                # 没救了，等死吧
+                raise Exception("Failed to open replay file")
+

@@ -4,7 +4,8 @@ from pprint import pprint
 if __name__ == '__main__':
 
     # 载入一个replay文件，参数为路径
-    tr=THReplay('th6_15.rpy')
+    tr=THReplay('rep/th10_ud0040.rpy')
+    #tr = THReplay('th10_02.rpy')
 
     # 获取rep基本信息，包含机体，难度，通关情况，字符串
     # etc. Reimu A normal all
@@ -24,7 +25,7 @@ if __name__ == '__main__':
     # etc.
     # 其中一个子list：['→', '→', '→', '→', '→', '→', '→', '→', '→', '→', '→', '→', '→', '→', '→', '→', '↑', '↑', '↑', '↑', '↑', '↑', '↑', '↑', '↑', '↑', '↑', '↑', '↑', '↑', '↑', '↑←', '↑←', '↑←', '↑←', '↑←', '↑←', '↑←', '↑←', '↑←', '↑', '↑', '○', '○', '○', '○', '○', '○', '○', '○', '○', '○', '○', '○', '○', '○', '○', '○', '○', '○']
     # 每个字符串记录了这帧按下的方向键，箭头表示方向，圆圈表示没按
-    # pprint(tr.getKeyboardAction())
+    #print(tr.getKeyboardAction())
 
     # 获取rep的机签，字符串
     # etc. WASUP
@@ -48,7 +49,7 @@ if __name__ == '__main__':
 
     # 获取rep中按下Z键的帧数的list，帧数从1开始数
     # etc. [63, 98, 136]
-    print(tr.getZ())
+    #print(tr.getZ())
 
     # 获取rep中按下X键的帧数的list，帧数从1开始数
     # etc. [193, 480, 766]
@@ -56,7 +57,7 @@ if __name__ == '__main__':
 
     # 获取rep中按下C键的帧数的list，帧数从1开始数，这个按键从TH128开始记录，TH125及以前无记录
     # etc. [1046, 1260]
-    print(tr.getC())
+    #print(tr.getC())
 
     # 获取rep中按下Shift键的帧数的list，帧数从1开始数
     # etc. [1495, 1532, 1568]

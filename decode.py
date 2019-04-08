@@ -91,6 +91,7 @@ def threp_cut(decodedata, work, frameignore = False):
                 pass
             else:
                 if frameignore:
+                    tmp_frame = frame
                     try:
                         frame = true_frame(llength)
                     except:
@@ -102,14 +103,14 @@ def threp_cut(decodedata, work, frameignore = False):
                                                   llength) + "，判断为长度出错，尝试自动补正"})
                     # 忽略帧数，强制保留单面长度
                     info['error'].append({'type': "frame read error",
-                                          'message': str(i) + "面，读取到的单面帧数：" + str(frame) + "，读取到的单面长度：" + str(
-                                              llength) + "，帧数计算出的单面长度：" + str(frame * 6 + ceil(frame / 30)) + "，判断为单面帧数出错"})
+                                          'message': str(i) + "面，读取到的单面帧数：" + str(tmp_frame) + "，读取到的单面长度：" + str(
+                                              llength) + "，帧数计算出的单面长度：" + str(tmp_frame * 6 + ceil(tmp_frame / 30)) + "，判断为单面帧数出错"})
                 else:
                     # rep单面长度出错
                     llength = frame * 6 + ceil(frame / 30)
                     info['error'].append({'type': "length read error",
-                                          'message': str(i) + "面，读取到的单面帧数：" + str(frame) + "，读取到的单面长度：" + str(
-                                              llength) + "，帧数计算出的单面长度：" + str(frame * 6 + ceil(frame / 30)) + "，判断为单面长度出错"})
+                                          'message': str(i) + "面，读取到的单面帧数：" + str(tmp_frame) + "，读取到的单面长度：" + str(
+                                              llength) + "，帧数计算出的单面长度：" + str(tmp_frame * 6 + ceil(tmp_frame / 30)) + "，判断为单面长度出错"})
             stagedata_t += llength + work_attr[work]['replaydata_offset']
             stagedata += work_attr[work]['replaydata_offset'] + llength
             score[i - 1] = unsigned_int(decodedata, stagedata + 0xc)
@@ -195,6 +196,12 @@ def hmxrep_cut(dat):
     chars = ("Reimu A", "Reimu B", "Marisa A", "Marisa B")
     levels = ("Easy", "Normal", "Hard", "Lunatic", "Extra")
     rep_info['base_info'] = chars[char]+" "+levels[rank]
+    rep_info['base_infos'] = {
+        "character": chars[char].split(" ")[0],
+        "shottype": chars[char].split(" ")[1],
+        "rank": levels[rank],
+        "stage": ""
+    }
     rep_info['slowrate'] = round(drop, 3)
 
     rep_info['stage_score'] = []
@@ -395,6 +402,12 @@ def yymrep_cut(dat):
     chars = ("Reimu A", "Reimu B", "Marisa A", "Marisa B", "Sakuya A", "Sakuya B")
     levels = ("Easy","Normal","Hard","Lunatic","Extra","Phantasm")
     rep_info['base_info'] = chars[char] + " " + levels[rank]
+    rep_info['base_infos'] = {
+        "character": chars[char].split(" ")[0],
+        "shottype": chars[char].split(" ")[1],
+        "rank": levels[rank],
+        "stage": ""
+    }
     rep_info['slowrate'] = round(drop, 3)
 
     rep_info['stage_score'] = []
@@ -520,10 +533,17 @@ def yycrep_cut(dat):
     chars = ("Rm & Yk", "Ms & Al", "Sk & Rr", "Ym & Yy", "Reimu", "Yukari", "Marisa", "Alice", "Sakuya", "Remilia", "Youmu", "Yuyuko")
     levels = ("Easy", "Normal", "Hard", "Lunatic", "Extra")
     spellid=decodedata[0x7c]+256*decodedata[0x7d]
+    rep_info['base_infos'] = {
+        "character": chars[char],
+        "shottype": "",
+        "stage": ""
+    }
     if spellid!=65535:
         rep_info['base_info'] = chars[char] + " Spell No." + str(spellid+1)
+        rep_info['base_infos']['rank'] = "Spell No." + str(spellid+1)
     else:
         rep_info['base_info'] = chars[char] + " " + levels[rank]
+        rep_info['base_infos']['rank'] = levels[rank]
     rep_info['slowrate'] = round(drop, 3)
 
     rep_info['stage_score'] = []
@@ -548,12 +568,16 @@ def yycrep_cut(dat):
             if stage_offset != 0:
                 if i==3:
                     rep_info['base_info']+=" 4A"
+                    rep_info['base_infos']['stage'] += "4A"
                 elif i==4:
                     rep_info['base_info']+=" 4B"
+                    rep_info['base_infos']['stage'] += "4B"
                 elif i==6:
                     rep_info['base_info']+=" 6A"
+                    rep_info['base_infos']['stage'] += "6A"
                 elif i==7:
                     rep_info['base_info']+=" 6B"
+                    rep_info['base_infos']['stage'] += "6B"
                 rep_info['stage_score'].append(unsigned_int(decodedata, stage_offset) * 10)
                 stage_offsets.append(stage_offset)
                 stage_end = unsigned_int(decodedata, 0x44 + i * 0x4)
@@ -567,12 +591,16 @@ def yycrep_cut(dat):
             if stage_offset != 0:
                 if i==3:
                     rep_info['base_info']+=" 4A"
+                    rep_info['base_infos']['stage'] += "4A"
                 elif i==4:
                     rep_info['base_info']+=" 4B"
+                    rep_info['base_infos']['stage'] += "4B"
                 elif i==6:
                     rep_info['base_info']+=" 6A"
+                    rep_info['base_infos']['stage'] += "6A"
                 elif i==7:
                     rep_info['base_info']+=" 6B"
+                    rep_info['base_infos']['stage'] += "6B"
                 rep_info['stage_score'].append(unsigned_int(decodedata, stage_offset) * 10)
                 stage_offsets.append(stage_offset)
 
@@ -663,8 +691,14 @@ def hyzrep_cut(dat):
     rep_info['player'] = name.strip().decode()
     chars = ("Reimu", "Marisa", "Sakuya", "Youmu", "Reisen", "Cirno", "Lyrica", "Mystia", "Tewi", "Yuka", "Aya", "Medicine", "Komachi", "Sikieiki", "Marlin", "Lunasa")
     levels = ("Easy", "Normal", "Hard", "Lunatic", "Extra")
-    modes = ('Story mode', 'Extra mode', 'Human vs Human', 'Human vs Com', 'Com vs Human', 'Com vs Com')
+    modes = ('Story Mode', 'Extra Mode', 'Human vs Human', 'Human vs Com', 'Com vs Human', 'Com vs Com')
     rep_info['base_info'] = levels[rank] + " " + modes[mode]
+    rep_info['base_infos'] = {
+        "character": [],
+        "shottype": "",
+        "rank": levels[rank],
+        "stage": modes[mode]
+    }
     rep_info['slowrate'] = 0.000
 
     rep_info['stage_score'] = []
@@ -682,6 +716,7 @@ def hyzrep_cut(dat):
         stage_offsets.append(stage_end)
         rep_info['stage_score'].append(unsigned_int(decodedata, stage_start) * 10)
         rep_info['base_info']+="\n"+chars[decodedata[stage_start+6]]+" vs "+chars[decodedata[stage_end+6]]
+        rep_info['base_infos']['character'].append(chars[decodedata[stage_start+6]]+" vs "+chars[decodedata[stage_end+6]])
     else:
         stage_end = unsigned_int(decodedata, 0x48)
 
@@ -691,6 +726,7 @@ def hyzrep_cut(dat):
                 rep_info['stage_score'].append(unsigned_int(decodedata, stage_offset) * 10)
                 ai_stage_offset = unsigned_int(decodedata, 0x48 + i * 0x4)
                 rep_info['base_info'] += "\n" + chars[decodedata[stage_offset + 6]] + " vs " + chars[decodedata[ai_stage_offset + 6]]
+                rep_info['base_infos']['character'].append(chars[decodedata[stage_offset + 6]] + " vs " + chars[decodedata[ai_stage_offset + 6]])
                 stage_offsets.append(stage_offset)
 
         stage_offsets.append(stage_end)
@@ -789,6 +825,12 @@ def threp_output(info, work):
         raise Exception("Unrecognized work {}".format(work))
 
     output['base_info']=' '.join([character, ctype, rank, clear]).strip().replace("  ", " ")
+    output['base_infos']={
+        "character": character,
+        "shottype": ctype,
+        "rank": rank,
+        "stage": clear
+    }
     output['stage_score']=[]
     output['player']=info['player']
     output['slowrate'] = info['slowrate']

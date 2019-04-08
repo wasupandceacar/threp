@@ -17,23 +17,23 @@ def th10type(character, ctype, rank, clear):
     else:
         raise Exception("Unrecognized ctype {}".format(ctype))
     if rank == 0:
-        rank_s = 'easy'
+        rank_s = 'Easy'
     elif rank == 1:
-        rank_s = 'normal'
+        rank_s = 'Normal'
     elif rank == 2:
-        rank_s = 'hard'
+        rank_s = 'Hard'
     elif rank == 3:
-        rank_s = 'lunatic'
+        rank_s = 'Lunatic'
     elif rank == 4:
-        rank_s = 'extra'
+        rank_s = 'Extra'
     else:
         raise Exception("Unrecognized rank {}".format(rank))
     if clear == 8:
-        clear_s = 'all'
+        clear_s = 'All'
     elif clear == 7:
-        clear_s = 'extra'
+        clear_s = 'Extra'
     else:
-        clear_s = "stage "+str(clear)
+        clear_s = "Stage "+str(clear)
     return character_s, ctype_s, rank_s, clear_s
 
 def th11type(character, ctype, rank, clear):
@@ -52,23 +52,23 @@ def th11type(character, ctype, rank, clear):
     else:
         raise Exception("Unrecognized ctype {}".format(ctype))
     if rank == 0:
-        rank_s = 'easy'
+        rank_s = 'Easy'
     elif rank == 1:
-        rank_s = 'normal'
+        rank_s = 'Normal'
     elif rank == 2:
-        rank_s = 'hard'
+        rank_s = 'Hard'
     elif rank == 3:
-        rank_s = 'lunatic'
+        rank_s = 'Lunatic'
     elif rank == 4:
-        rank_s = 'extra'
+        rank_s = 'Extra'
     else:
         raise Exception("Unrecognized rank {}".format(rank))
     if clear == 8:
-        clear_s = 'all'
+        clear_s = 'All'
     elif clear == 7:
-        clear_s = 'extra'
+        clear_s = 'Extra'
     else:
-        clear_s = "stage "+str(clear)
+        clear_s = "Stage "+str(clear)
     return character_s, ctype_s, rank_s, clear_s
 
 def th12type(character, ctype, rank, clear):
@@ -87,23 +87,23 @@ def th12type(character, ctype, rank, clear):
     else:
         raise Exception("Unrecognized ctype {}".format(ctype))
     if rank == 0:
-        rank_s = 'easy'
+        rank_s = 'Easy'
     elif rank == 1:
-        rank_s = 'normal'
+        rank_s = 'Normal'
     elif rank == 2:
-        rank_s = 'hard'
+        rank_s = 'Hard'
     elif rank == 3:
-        rank_s = 'lunatic'
+        rank_s = 'Lunatic'
     elif rank == 4:
-        rank_s = 'extra'
+        rank_s = 'Extra'
     else:
         raise Exception("Unrecognized rank {}".format(rank))
     if clear == 8:
-        clear_s = 'all'
+        clear_s = 'All'
     elif clear == 7:
-        clear_s = 'extra'
+        clear_s = 'Extra'
     else:
-        clear_s = "stage "+str(clear)
+        clear_s = "Stage "+str(clear)
     return character_s, ctype_s, rank_s, clear_s
 
 def th13type(character, ctype, rank, clear):
@@ -118,25 +118,25 @@ def th13type(character, ctype, rank, clear):
     else:
         raise Exception("Unrecognized character {}".format(character))
     if rank == 0:
-        rank_s = 'easy'
+        rank_s = 'Easy'
     elif rank == 1:
-        rank_s = 'normal'
+        rank_s = 'Normal'
     elif rank == 2:
-        rank_s = 'hard'
+        rank_s = 'Hard'
     elif rank == 3:
-        rank_s = 'lunatic'
+        rank_s = 'Lunatic'
     elif rank == 4:
-        rank_s = 'extra'
+        rank_s = 'Extra'
     elif rank == 5:
         rank_s = 'overdrive'
     else:
         raise Exception("Unrecognized rank {}".format(rank))
     if clear == 8:
-        clear_s = 'all'
+        clear_s = 'All'
     elif clear == 7:
-        clear_s = 'extra'
+        clear_s = 'Extra'
     else:
-        clear_s = "stage "+str(clear)
+        clear_s = "Stage "+str(clear)
     return character_s, "", rank_s, clear_s
 
 def th14type(character, ctype, rank, clear):
@@ -155,23 +155,23 @@ def th14type(character, ctype, rank, clear):
     else:
         raise Exception("Unrecognized ctype {}".format(ctype))
     if rank == 0:
-        rank_s = 'easy'
+        rank_s = 'Easy'
     elif rank == 1:
-        rank_s = 'normal'
+        rank_s = 'Normal'
     elif rank == 2:
-        rank_s = 'hard'
+        rank_s = 'Hard'
     elif rank == 3:
-        rank_s = 'lunatic'
+        rank_s = 'Lunatic'
     elif rank == 4:
-        rank_s = 'extra'
+        rank_s = 'Extra'
     else:
         raise Exception("Unrecognized rank {}".format(rank))
     if clear == 8:
-        clear_s = 'all'
+        clear_s = 'All'
     elif clear == 7:
-        clear_s = 'extra'
+        clear_s = 'Extra'
     else:
-        clear_s = "stage "+str(clear)
+        clear_s = "Stage "+str(clear)
     return character_s, ctype_s, rank_s, clear_s
 
 def th15type(character, ctype, rank, clear):
@@ -186,23 +186,23 @@ def th15type(character, ctype, rank, clear):
     else:
         raise Exception("Unrecognized character {}".format(character))
     if rank == 0:
-        rank_s = 'easy'
+        rank_s = 'Easy'
     elif rank == 1:
-        rank_s = 'normal'
+        rank_s = 'Normal'
     elif rank == 2:
-        rank_s = 'hard'
+        rank_s = 'Hard'
     elif rank == 3:
-        rank_s = 'lunatic'
+        rank_s = 'Lunatic'
     elif rank == 4:
-        rank_s = 'extra'
+        rank_s = 'Extra'
     else:
         raise Exception("Unrecognized rank {}".format(rank))
     if clear == 8:
-        clear_s = 'all'
+        clear_s = 'All'
     elif clear == 7:
-        clear_s = 'extra'
+        clear_s = 'Extra'
     else:
-        clear_s = "stage "+str(clear)
+        clear_s = "Stage "+str(clear)
     return character_s, "", rank_s, clear_s
 
 def th16type(character, ctype, rank, clear):
@@ -229,23 +229,23 @@ def th16type(character, ctype, rank, clear):
     else:
         raise Exception("Unrecognized ctype {}".format(ctype))
     if rank == 0:
-        rank_s = 'easy'
+        rank_s = 'Easy'
     elif rank == 1:
-        rank_s = 'normal'
+        rank_s = 'Normal'
     elif rank == 2:
-        rank_s = 'hard'
+        rank_s = 'Hard'
     elif rank == 3:
-        rank_s = 'lunatic'
+        rank_s = 'Lunatic'
     elif rank == 4:
-        rank_s = 'extra'
+        rank_s = 'Extra'
     else:
         raise Exception("Unrecognized rank {}".format(rank))
     if clear == 8:
-        clear_s = 'all'
+        clear_s = 'All'
     elif clear == 7:
-        clear_s = 'extra'
+        clear_s = 'Extra'
     else:
-        clear_s = "stage "+str(clear)
+        clear_s = "Stage "+str(clear)
     return character_s, ctype_s, rank_s, clear_s
 
 def th128type(character, ctype, rank, clear):

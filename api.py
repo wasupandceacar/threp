@@ -15,6 +15,9 @@ class THReplay:
     def getBaseInfo(self):
         return self.__replay_info['base_info']
 
+    def getBaseInfoDic(self):
+        return self.__replay_info['base_infos']
+
     def getStageScore(self):
         return self.__replay_info['stage_score']
 

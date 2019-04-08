@@ -4,12 +4,17 @@ from pprint import pprint
 if __name__ == '__main__':
 
     # 载入一个replay文件，参数为路径
-    tr=THReplay('rep/th13_ud002m.rpy')
+    tr=THReplay('rep/th10_ud0040.rpy')
     #tr = THReplay('th10_02.rpy')
 
     # 获取rep基本信息，包含机体，难度，通关情况，字符串
-    # etc. Reimu A normal all
+    # etc. Reimu A Normal All
     print(tr.getBaseInfo())
+
+    # 获取rep基本信息的字典，包含机体，难度，通关情况，字符串
+    # 字典的键分别为 character shottype rank stage
+    # etc. Reimu A Normal All
+    print(tr.getBaseInfoDic())
 
     # 获取rep每个stage的分数，list，包含一串整数
     # etc. [13434600, 50759200, 103025260, 152519820, 230440680, 326777480]

@@ -109,8 +109,8 @@ def threp_cut(decodedata, work, frameignore = False):
                     # rep单面长度出错
                     llength = frame * 6 + ceil(frame / 30)
                     info['error'].append({'type': "length read error",
-                                          'message': str(i) + "面，读取到的单面帧数：" + str(tmp_frame) + "，读取到的单面长度：" + str(
-                                              llength) + "，帧数计算出的单面长度：" + str(tmp_frame * 6 + ceil(tmp_frame / 30)) + "，判断为单面长度出错"})
+                                          'message': str(i) + "面，读取到的单面帧数：" + str(frame) + "，读取到的单面长度：" + str(
+                                              llength) + "，帧数计算出的单面长度：" + str(frame * 6 + ceil(frame / 30)) + "，判断为单面长度出错"})
             stagedata_t += llength + work_attr[work]['replaydata_offset']
             stagedata += work_attr[work]['replaydata_offset'] + llength
             score[i - 1] = unsigned_int(decodedata, stagedata + 0xc)

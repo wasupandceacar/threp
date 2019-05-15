@@ -60,12 +60,12 @@ def threp_cut(decodedata, work, frameignore = False):
     if work=='95':
         for i in range(7, 15):
             info['player'] += chr(unsigned_char(decodedata, i))
-        info['player'] = info['player'].replace(" ", "")
+        info['player'] = info['player'].strip()
         info['character'] = 0
     else:
         for i in range(8):
             info['player'] += chr(unsigned_char(decodedata, i))
-        info['player'] = info['player'].replace(" ", "")
+        info['player'] = info['player'].strip()
 
     info['slowrate']=round(float(decodedata, work_attr[work]['slowrate']), 2)
 

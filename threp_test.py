@@ -4,7 +4,7 @@ from pprint import pprint
 if __name__ == '__main__':
 
     # 载入一个replay文件，参数为路径
-    tr=THReplay('rep/th10_ud0040.rpy')
+    tr=THReplay('rep/th12_03.rpy')
     #tr = THReplay('th10_02.rpy')
 
     # 获取rep基本信息，包含机体，难度，通关情况，字符串

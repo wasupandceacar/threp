@@ -1,5 +1,5 @@
-from .static import dzz_attr
-from .static import week_array
+from static import dzz_attr
+from static import week_array
 
 def th10type(character, ctype, rank, clear):
     if character == 0:
@@ -327,3 +327,40 @@ def th165type(character, ctype, rank, clear):
     else:
         raise Exception("Unrecognize ctype {}".format(ctype))
     return "Usami", "", rank_s + week_array[rank % 7] + "-" + str(ctype+1), ""
+
+def th17type(character, ctype, rank, clear):
+    if character == 0:
+        character_s = 'Reimu'
+    elif character == 1:
+        character_s = 'Marisa'
+    elif character == 2:
+        character_s = 'Youmu'
+    else:
+        raise Exception("Unrecognized character {}".format(character))
+    if ctype == 0:
+        ctype_s = 'Wolf'
+    elif ctype == 1:
+        ctype_s = 'Otter'
+    elif ctype == 2:
+        ctype_s = 'Eagle'
+    else:
+        raise Exception("Unrecognized ctype {}".format(ctype))
+    if rank == 0:
+        rank_s = 'Easy'
+    elif rank == 1:
+        rank_s = 'Normal'
+    elif rank == 2:
+        rank_s = 'Hard'
+    elif rank == 3:
+        rank_s = 'Lunatic'
+    elif rank == 4:
+        rank_s = 'Extra'
+    else:
+        raise Exception("Unrecognized rank {}".format(rank))
+    if clear == 8:
+        clear_s = 'All'
+    elif clear == 7:
+        clear_s = 'Extra'
+    else:
+        clear_s = "Stage "+str(clear)
+    return character_s, ctype_s, rank_s, clear_s

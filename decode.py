@@ -40,7 +40,7 @@ def threp_cut(decodedata, work, frameignore = False):
     info = {'stages': {}, 'stage': None,
             'character': None, 'ctype': None, 'rank': None, 'clear': None, 'player': '', 'slowrate': None, 'date': None, 'error':[]}
 
-    # f=open('rep13sh.txt', 'wb')
+    # f=open('rep161.txt', 'wb')
     # f.write(decodedata)
     # f.close()
 
@@ -170,6 +170,8 @@ def threp_cut(decodedata, work, frameignore = False):
 # 红魔乡
 def hmxrep_cut(dat):
     rep_info = {}
+
+    rep_info["buffer"] = dat
 
     decodedata = bytearray(len(dat))
     mask = dat[0x0e]
@@ -821,6 +823,8 @@ def threp_output(info, work):
         character, ctype, rank, clear = th95type(info['character'], info['ctype'], info['rank'], info['clear'])
     elif work=='165':
         character, ctype, rank, clear = th165type(info['character'], info['ctype'], info['rank'], info['clear'])
+    elif work=='17':
+        character, ctype, rank, clear = th17type(info['character'], info['ctype'], info['rank'], info['clear'])
     else:
         raise Exception("Unrecognized work {}".format(work))
 

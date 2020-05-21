@@ -107,10 +107,10 @@ def threp_cut(decodedata, work, frameignore = False):
                                               llength) + "，帧数计算出的单面长度：" + str(tmp_frame * 6 + ceil(tmp_frame / 30)) + "，判断为单面帧数出错"})
                 else:
                     # rep单面长度出错
-                    llength = frame * 6 + ceil(frame / 30)
                     info['error'].append({'type': "length read error",
                                           'message': str(i) + "面，读取到的单面帧数：" + str(frame) + "，读取到的单面长度：" + str(
                                               llength) + "，帧数计算出的单面长度：" + str(frame * 6 + ceil(frame / 30)) + "，判断为单面长度出错"})
+                    llength = frame * 6 + ceil(frame / 30)
             stagedata_t += llength + work_attr[work]['replaydata_offset']
             stagedata += work_attr[work]['replaydata_offset'] + llength
             score[i - 1] = unsigned_int(decodedata, stagedata + 0xc)
@@ -955,6 +955,12 @@ def check_DDC_frame_error(replay_info):
             return True
     return False
 
+def check_length_read_error(replay_info):
+    for error in replay_info["error"]:
+        if error["type"] == "length read error":
+            return True
+    return False
+
 # 根据长度获取正确的帧数
 def true_frame(llength):
     frame = floor(llength / (6 + 1/30))
@@ -1002,7 +1008,10 @@ def load(file):
                         # 再次跳转，并强制矫正单面frame长度
                         work = '14'
                         return threp_output(threp_cut(decodedata, work, True), work)
-                    return threp_output(threp_cut(decodedata, work), work)
+                    # 出现单面长度错误且帧数过短，判断为矫正错误
+                    if check_length_read_error(replay_info2) and replay_info2['frame_count'] < 54000:
+                        return threp_output(threp_cut(decodedata, work, True), work)
+                    return replay_info2
                 except:
                     # 庙rep因长度错误被误转换到城
                     return threp_output(threp_cut(decodedata, work, True), work)
@@ -1034,8 +1043,10 @@ def load(file):
                     # 再次跳转，并强制保留单面frame长度
                     work = '14'
                     return threp_output(threp_cut(decodedata, work, True), work)
-                else:
-                    return threp_output(threp_cut(decodedata, work), work)
+                # 出现单面长度错误且帧数过短，判断为矫正错误
+                if check_length_read_error(replay_info2) and replay_info2['frame_count'] < 54000:
+                    return threp_output(threp_cut(decodedata, work, True), work)
+                return replay_info2
             except:
                 # 庙rep因长度错误被误转换到城
                 return threp_output(threp_cut(decodedata, work, True), work)

@@ -364,3 +364,33 @@ def th17type(character, ctype, rank, clear):
     else:
         clear_s = "Stage "+str(clear)
     return character_s, ctype_s, rank_s, clear_s
+def th18type(character, ctype, rank, clear):
+    if character == 0:
+        character_s = 'Reimu'
+    elif character == 1:
+        character_s = 'Marisa'
+    elif character == 2:
+        character_s = 'Sanae'
+    elif character == 3:
+        character_s = 'Sakuya'
+    else:
+        raise Exception("Unrecognized character {}".format(character))
+    if rank == 0:
+        rank_s = 'Easy'
+    elif rank == 1:
+        rank_s = 'Normal'
+    elif rank == 2:
+        rank_s = 'Hard'
+    elif rank == 3:
+        rank_s = 'Lunatic'
+    elif rank == 4:
+        rank_s = 'Extra'
+    else:
+        raise Exception("Unrecognized rank {}".format(rank))
+    if clear == 8:
+        clear_s = 'All'
+    elif clear == 7:
+        clear_s = 'Extra'
+    else:
+        clear_s = "Stage "+str(clear)
+    return character_s, "", rank_s, clear_s

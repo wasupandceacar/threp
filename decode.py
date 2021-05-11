@@ -825,6 +825,8 @@ def threp_output(info, work):
         character, ctype, rank, clear = th165type(info['character'], info['ctype'], info['rank'], info['clear'])
     elif work=='17':
         character, ctype, rank, clear = th17type(info['character'], info['ctype'], info['rank'], info['clear'])
+    elif work=='18':
+        character, ctype, rank, clear = th18type(info['character'], info['ctype'], info['rank'], info['clear'])
     else:
         raise Exception("Unrecognized work {}".format(work))
 

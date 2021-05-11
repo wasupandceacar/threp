@@ -370,9 +370,9 @@ def th18type(character, ctype, rank, clear):
     elif character == 1:
         character_s = 'Marisa'
     elif character == 2:
-        character_s = 'Sanae'
-    elif character == 3:
         character_s = 'Sakuya'
+    elif character == 3:
+        character_s = 'Sanae'
     else:
         raise Exception("Unrecognized character {}".format(character))
     if rank == 0:

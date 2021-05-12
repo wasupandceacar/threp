@@ -16,6 +16,10 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+    - name: Setup timezone
+      uses: zcong1993/setup-timezone@master
+      with:
+        timezone: Asia/Shanghai
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip

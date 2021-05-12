@@ -48,6 +48,6 @@ Temporary Items
 *.xml
 .idea/threp_fucker.iml
 *.pyc
-*.rpy
 *.txt
 encode.py
+generate_tst.py

@@ -1,10 +1,10 @@
-from .decode import load
-from .static import init_work_attr
+from decode import load
+from static import init_work_attr
 
 class THReplay:
     def __init__(self, replay_file):
         init_work_attr()
-        self.__replay_info=load(replay_file)
+        self.__replay_info = load(replay_file)
 
     def reload_replay(self, replay_file):
         self.__replay_info = load(replay_file)
@@ -39,9 +39,6 @@ class THReplay:
     def getFrameCount(self):
         return self.__replay_info['frame_count']
 
-    def getError(self):
-        return self.__replay_info['error']
-
     def getZ(self):
         return self.__replay_info['z_frame']
 
@@ -53,3 +50,6 @@ class THReplay:
 
     def getShift(self):
         return self.__replay_info['shift_frame']
+
+    def getError(self):
+        return self.__replay_info['error']

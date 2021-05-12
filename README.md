@@ -1,3 +1,5 @@
+![threp](https://github.com/wasupandceacar/threp/actions/workflows/main.yml/badge.svg)
+
 一、介绍
 ---------
 threp用于解析东方project系列游戏的replay文件，即游戏回放文件，可以获取replay文件的通关情况，机师，难度，通关情况，机体，处理落，日期，屏幕移动，按键记录。

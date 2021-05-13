@@ -14,15 +14,15 @@ def float(_bytes, pointer):
     return unpack('f', _bytes[pointer:pointer + 4])[0]
 
 def bin32(num):
-    return '{0:>32}'.format(bin(num)[2:]).replace(' ', '0')
+    return f'{bin(num)[2:]:>32}'.replace(' ', '0')
 
 
 def bin8(num):
-    return '{0:>8}'.format(bin(num)[2:]).replace(' ', '0')
+    return f'{bin(num)[2:]:>8}'.replace(' ', '0')
 
 
 def bin16(num):
-    return '{0:>16}'.format(bin(num)[2:]).replace(' ', '0')
+    return f'{bin(num)[2:]:>16}'.replace(' ', '0')
 
 
 class Ref(object):

@@ -7,7 +7,7 @@ threp用于解析东方project系列游戏的replay文件，即游戏回放文�
 
 二、安装方法
 -------------
-在 Python 3.5+ 下使用，用 pip 安装：
+在 Python 3.6+ 下使用，用 pip 安装：
 
     pip install threp
 

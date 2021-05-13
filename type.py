@@ -1,13 +1,16 @@
 from static import dzz_attr
 from static import week_array
 
+def raise_unrecog(type, name):
+    raise Exception(f"Unrecognized {type} {name}")
+
 def th10type(character, ctype, rank, clear):
     if character == 0:
         character_s = 'Reimu'
     elif character == 1:
         character_s = 'Marisa'
     else:
-        raise Exception("Unrecognized character {}".format(character))
+        raise_unrecog('character', character)
     if ctype == 0:
         ctype_s = 'A'
     elif ctype == 1:
@@ -15,7 +18,7 @@ def th10type(character, ctype, rank, clear):
     elif ctype == 2:
         ctype_s = 'C'
     else:
-        raise Exception("Unrecognized ctype {}".format(ctype))
+        raise_unrecog('ctype', ctype)
     if rank == 0:
         rank_s = 'Easy'
     elif rank == 1:
@@ -27,7 +30,7 @@ def th10type(character, ctype, rank, clear):
     elif rank == 4:
         rank_s = 'Extra'
     else:
-        raise Exception("Unrecognized rank {}".format(rank))
+        raise_unrecog('rank', rank)
     if clear == 8:
         clear_s = 'All'
     elif clear == 7:
@@ -42,7 +45,7 @@ def th11type(character, ctype, rank, clear):
     elif character == 1:
         character_s = 'Marisa'
     else:
-        raise Exception("Unrecognized character {}".format(character))
+        raise_unrecog('character', character)
     if ctype == 0:
         ctype_s = 'A'
     elif ctype == 1:
@@ -50,7 +53,7 @@ def th11type(character, ctype, rank, clear):
     elif ctype == 2:
         ctype_s = 'C'
     else:
-        raise Exception("Unrecognized ctype {}".format(ctype))
+        raise_unrecog('ctype', ctype)
     if rank == 0:
         rank_s = 'Easy'
     elif rank == 1:
@@ -62,7 +65,7 @@ def th11type(character, ctype, rank, clear):
     elif rank == 4:
         rank_s = 'Extra'
     else:
-        raise Exception("Unrecognized rank {}".format(rank))
+        raise_unrecog('rank', rank)
     if clear == 8:
         clear_s = 'All'
     elif clear == 7:
@@ -79,13 +82,13 @@ def th12type(character, ctype, rank, clear):
     elif character == 2:
         character_s = 'Sanae'
     else:
-        raise Exception("Unrecognized character {}".format(character))
+        raise_unrecog('character', character)
     if ctype == 0:
         ctype_s = 'A'
     elif ctype == 1:
         ctype_s = 'B'
     else:
-        raise Exception("Unrecognized ctype {}".format(ctype))
+        raise_unrecog('ctype', ctype)
     if rank == 0:
         rank_s = 'Easy'
     elif rank == 1:
@@ -97,7 +100,7 @@ def th12type(character, ctype, rank, clear):
     elif rank == 4:
         rank_s = 'Extra'
     else:
-        raise Exception("Unrecognized rank {}".format(rank))
+        raise_unrecog('rank', rank)
     if clear == 8:
         clear_s = 'All'
     elif clear == 7:
@@ -116,7 +119,7 @@ def th13type(character, ctype, rank, clear):
     elif character == 3:
         character_s = 'Youmu'
     else:
-        raise Exception("Unrecognized character {}".format(character))
+        raise_unrecog('character', character)
     if rank == 0:
         rank_s = 'Easy'
     elif rank == 1:
@@ -130,7 +133,7 @@ def th13type(character, ctype, rank, clear):
     elif rank == 5:
         rank_s = 'overdrive'
     else:
-        raise Exception("Unrecognized rank {}".format(rank))
+        raise_unrecog('rank', rank)
     if clear == 8:
         clear_s = 'All'
     elif clear == 7:
@@ -147,13 +150,13 @@ def th14type(character, ctype, rank, clear):
     elif character == 2:
         character_s = 'Sakuya'
     else:
-        raise Exception("Unrecognized character {}".format(character))
+        raise_unrecog('character', character)
     if ctype == 0:
         ctype_s = 'A'
     elif ctype == 1:
         ctype_s = 'B'
     else:
-        raise Exception("Unrecognized ctype {}".format(ctype))
+        raise_unrecog('ctype', ctype)
     if rank == 0:
         rank_s = 'Easy'
     elif rank == 1:
@@ -165,7 +168,7 @@ def th14type(character, ctype, rank, clear):
     elif rank == 4:
         rank_s = 'Extra'
     else:
-        raise Exception("Unrecognized rank {}".format(rank))
+        raise_unrecog('rank', rank)
     if clear == 8:
         clear_s = 'All'
     elif clear == 7:
@@ -184,7 +187,7 @@ def th15type(character, ctype, rank, clear):
     elif character == 3:
         character_s = 'Reisen'
     else:
-        raise Exception("Unrecognized character {}".format(character))
+        raise_unrecog('character', character)
     if rank == 0:
         rank_s = 'Easy'
     elif rank == 1:
@@ -196,7 +199,7 @@ def th15type(character, ctype, rank, clear):
     elif rank == 4:
         rank_s = 'Extra'
     else:
-        raise Exception("Unrecognized rank {}".format(rank))
+        raise_unrecog('rank', rank)
     if clear == 8:
         clear_s = 'All'
     elif clear == 7:
@@ -215,7 +218,7 @@ def th16type(character, ctype, rank, clear):
     elif character == 3:
         character_s = 'Marisa'
     else:
-        raise Exception("Unrecognized character {}".format(character))
+        raise_unrecog('character', character)
     if ctype == 0:
         ctype_s = 'Spring'
     elif ctype == 1:
@@ -227,7 +230,7 @@ def th16type(character, ctype, rank, clear):
     elif ctype == 4:
         ctype_s = 'Full'
     else:
-        raise Exception("Unrecognized ctype {}".format(ctype))
+        raise_unrecog('ctype', ctype)
     if rank == 0:
         rank_s = 'Easy'
     elif rank == 1:
@@ -239,7 +242,7 @@ def th16type(character, ctype, rank, clear):
     elif rank == 4:
         rank_s = 'Extra'
     else:
-        raise Exception("Unrecognized rank {}".format(rank))
+        raise_unrecog('rank', rank)
     if clear == 8:
         clear_s = 'All'
     elif clear == 7:
@@ -264,7 +267,7 @@ def th128type(character, ctype, rank, clear):
     elif character == 6:
         character_s = 'Extra'
     else:
-        raise Exception("Unrecognized character {}".format(character))
+        raise_unrecog('character', character)
     if rank == 0:
         rank_s = 'Easy'
     elif rank == 1:
@@ -276,7 +279,7 @@ def th128type(character, ctype, rank, clear):
     elif rank == 4:
         rank_s = 'Extra'
     else:
-        raise Exception("Unrecognized rank {}".format(rank))
+        raise_unrecog('rank', rank)
     if clear>=1 and clear<=23:
         clear_s = dzz_attr[clear-1]
     return character_s, "", rank_s, clear_s
@@ -287,7 +290,7 @@ def th125type(character, ctype, rank, clear):
     elif character == 1:
         character_s = 'Hatate'
     else:
-        raise Exception("Unrecognized character {}".format(character))
+        raise_unrecog('character', character)
     if ctype == 12:
         rank_s = 'EX-'
     elif ctype == 13:
@@ -295,7 +298,7 @@ def th125type(character, ctype, rank, clear):
     elif ctype >= 0 and ctype <= 11:
         rank_s = str(ctype+1) + "-"
     else:
-        raise Exception("Unrecognized ctype {}".format(ctype))
+        raise_unrecog('ctype', ctype)
     rank_s+=str(rank+1)
     return character_s, "", rank_s, ""
 
@@ -303,7 +306,7 @@ def th143type(character, ctype, rank, clear):
     if ctype >= 0 and ctype <= 10:
         rank_s = str(ctype+1) + "-"
     else:
-        raise Exception("Unrecognized ctype {}".format(ctype))
+        raise_unrecog('ctype', ctype)
     rank_s+=str(rank+1)
     return "", "", rank_s, ""
 
@@ -313,7 +316,7 @@ def th95type(character, ctype, rank, clear):
     elif ctype >= 0 and ctype <= 9:
         rank_s = str(ctype+1) + "-"
     else:
-        raise Exception("Unrecognized ctype {}".format(ctype))
+        raise_unrecog('ctype', ctype)
     rank_s+=str(rank+1)
     return "", "", rank_s, ""
 
@@ -325,7 +328,7 @@ def th165type(character, ctype, rank, clear):
     elif 14 <= rank and rank <= 20:
         rank_s = 'Nightmare-'
     else:
-        raise Exception("Unrecognize ctype {}".format(ctype))
+        raise_unrecog('ctype', ctype)
     return "Usami", "", rank_s + week_array[rank % 7] + "-" + str(ctype+1), ""
 
 def th17type(character, ctype, rank, clear):
@@ -336,7 +339,7 @@ def th17type(character, ctype, rank, clear):
     elif character == 2:
         character_s = 'Youmu'
     else:
-        raise Exception("Unrecognized character {}".format(character))
+        raise_unrecog('character', character)
     if ctype == 0:
         ctype_s = 'Wolf'
     elif ctype == 1:
@@ -344,7 +347,7 @@ def th17type(character, ctype, rank, clear):
     elif ctype == 2:
         ctype_s = 'Eagle'
     else:
-        raise Exception("Unrecognized ctype {}".format(ctype))
+        raise_unrecog('ctype', ctype)
     if rank == 0:
         rank_s = 'Easy'
     elif rank == 1:
@@ -356,7 +359,7 @@ def th17type(character, ctype, rank, clear):
     elif rank == 4:
         rank_s = 'Extra'
     else:
-        raise Exception("Unrecognized rank {}".format(rank))
+        raise_unrecog('rank', rank)
     if clear == 8:
         clear_s = 'All'
     elif clear == 7:
@@ -374,7 +377,7 @@ def th18type(character, ctype, rank, clear):
     elif character == 3:
         character_s = 'Sanae'
     else:
-        raise Exception("Unrecognized character {}".format(character))
+        raise_unrecog('character', character)
     if rank == 0:
         rank_s = 'Easy'
     elif rank == 1:
@@ -386,7 +389,7 @@ def th18type(character, ctype, rank, clear):
     elif rank == 4:
         rank_s = 'Extra'
     else:
-        raise Exception("Unrecognized rank {}".format(rank))
+        raise_unrecog('rank', rank)
     if clear == 8:
         clear_s = 'All'
     elif clear == 7:

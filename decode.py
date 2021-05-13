@@ -244,7 +244,7 @@ def hmxrep_cut(dat):
             for i in range(len(stage_replaydata)-1):
                 for index in range(stage_replaydata[i][0], stage_replaydata[i+1][0]):
                     if (frame_count % 60 == 0):
-                        skey.append('[{0:<6}]'.format(frame_count // 60))
+                        skey.append(f'[{(frame_count // 60):<6}]')
                     skey.append(skeys[stage_replaydata[i][1]])
                     kkey.append(kkeys[stage_replaydata[i][1]])
                     if (frame_count + 1) % 60 == 0:
@@ -462,7 +462,7 @@ def yymrep_cut(dat):
         kkey = []
         for j in range(frame):
             if (j % 60 == 0):
-                skey.append('[{0:<6}]'.format(j // 60))
+                skey.append(f'[{(j // 60):<6}]')
             framekey = unsigned_int(decodedata, start + j * 4) >> 4 & 0xf
             skey.append(skeys[framekey])
             kkey.append(kkeys[framekey])
@@ -622,7 +622,7 @@ def yycrep_cut(dat):
         kkey = []
         for j in range(frame):
             if (j % 60 == 0):
-                skey.append('[{0:<6}]'.format(j // 60))
+                skey.append(f'[{(j // 60):<6}]')
             framekey = unsigned_int(decodedata, start + j * 2) >> 4 & 0xf
             skey.append(skeys[framekey])
             kkey.append(kkeys[framekey])
@@ -747,7 +747,7 @@ def hyzrep_cut(dat):
         kkey = []
         for j in range(frame):
             if (j % 60 == 0):
-                skey.append('[{0:<6}]'.format(j // 60))
+                skey.append(f'[{(j // 60):<6}]')
             framekey = unsigned_int(decodedata, start + j * 2) >> 4 & 0xf
             skey.append(skeys[framekey])
             kkey.append(kkeys[framekey])
@@ -828,7 +828,7 @@ def threp_output(info, work):
     elif work=='18':
         character, ctype, rank, clear = th18type(info['character'], info['ctype'], info['rank'], info['clear'])
     else:
-        raise Exception("Unrecognized work {}".format(work))
+        raise Exception(f"Unrecognized work {work}")
 
     output['base_info']=' '.join([character, ctype, rank, clear]).strip().replace("  ", " ")
     output['base_infos']={
@@ -873,7 +873,7 @@ def threp_output(info, work):
             kkey = []
             for i in range(frame):
                 if (i % 60 == 0):
-                    skey.append('[{0:<6}]'.format(i // 60))
+                    skey.append(f'[{(i // 60):<6}]')
                 framekey = unsigned_int(replaydata, i * 3) >> 3 & 0xf
                 skey.append(skeys[framekey])
                 kkey.append(kkeys[framekey])
@@ -902,7 +902,7 @@ def threp_output(info, work):
             kkey = []
             for i in range(frame):
                 if (i % 60 == 0):
-                    skey.append('[{0:<6}]'.format(i // 60))
+                    skey.append(f'[{(i // 60):<6}]')
                 #print("stage", l, hex(i * 6))
                 framekey = unsigned_int(replaydata, i * 6) >> 4 & 0xf
                 skey.append(skeys[framekey])

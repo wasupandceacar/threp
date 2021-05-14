@@ -3,19 +3,13 @@ from time import localtime
 
 from utils import unsigned_int, unsigned_char, float
 from common import decode, decompress, entry
-from static import work_attr, skeys, kkeys, hmx_magicnumber, yym_magicnumber, yyc_magicnumber, hyz_magicnumber
+from static import work_attr, skeys, kkeys, oldwork_magicnumber_flc
 from type import *
 
 def threp_decodedata(buffer):
     work_magicnumber = unsigned_int(buffer, 0)
-    if work_magicnumber==hmx_magicnumber:
-        return hmxrep_cut(buffer), '06'
-    elif work_magicnumber==yym_magicnumber:
-        return yymrep_cut(buffer), '07'
-    elif work_magicnumber==yyc_magicnumber:
-        return yycrep_cut(buffer), '08'
-    elif work_magicnumber==hyz_magicnumber:
-        return hyzrep_cut(buffer), '09'
+    if work_magicnumber in oldwork_magicnumber_flc:
+        return oldworkrep_cut(oldwork_magicnumber_flc[work_magicnumber], buffer)
     else:
         is_2hu_replay = False
         for key, value in work_attr.items():
@@ -34,7 +28,7 @@ def threp_decodedata(buffer):
             decompress(rawdata, decodedata, length)
             return decodedata, work
         else:
-            raise Exception("Unrecognized replay file")
+            raise Exception("Bad file magic number")
 
 def threp_cut(decodedata, work, frameignore = False):
     info = {'stages': {}, 'stage': None,
@@ -166,6 +160,15 @@ def threp_cut(decodedata, work, frameignore = False):
     return info
 
 #region 红妖永花
+
+def oldworkrep_cut(work, data):
+    funcdic = {
+        '06': hmxrep_cut,
+        '07': yymrep_cut,
+        '08': yycrep_cut,
+        '09': hyzrep_cut
+    }
+    return funcdic[work](data), work
 
 # 红魔乡
 def hmxrep_cut(dat):

@@ -544,13 +544,12 @@ def yycrep_cut(dat):
         "stage": ""
     }
     if spellid!=65535:
-        rep_info['base_info'] = chars[char] + " Spell No." + str(spellid+1)
-        rep_info['base_infos']['rank'] = "Spell No." + str(spellid+1)
+        rep_info['base_info'] = f"{chars[char]} Spell No.{spellid+1}"
+        rep_info['base_infos']['rank'] = f"Spell No.{spellid+1}"
     else:
-        rep_info['base_info'] = chars[char] + " " + levels[rank]
+        rep_info['base_info'] = f"{chars[char]} {levels[rank]}"
         rep_info['base_infos']['rank'] = levels[rank]
     rep_info['slowrate'] = round(drop, 3)
-
     rep_info['stage_score'] = []
     rep_info['screen_action'] = []
     rep_info['keyboard_action'] = []
@@ -560,6 +559,13 @@ def yycrep_cut(dat):
     is_onestage = (unsigned_int(decodedata, 0x20) == 0)
 
     stage_offsets = []
+
+    stage_dic = {
+        3: "4A",
+        4: "4B",
+        6: "6A",
+        7: "6B"
+    }
 
     if is_extra:
         stage_start = unsigned_int(decodedata, 0x40)
@@ -571,18 +577,10 @@ def yycrep_cut(dat):
         for i in range(8):
             stage_offset = unsigned_int(decodedata, 0x20 + i * 0x4)
             if stage_offset != 0:
-                if i==3:
-                    rep_info['base_info']+=" 4A"
-                    rep_info['base_infos']['stage'] += "4A"
-                elif i==4:
-                    rep_info['base_info']+=" 4B"
-                    rep_info['base_infos']['stage'] += "4B"
-                elif i==6:
-                    rep_info['base_info']+=" 6A"
-                    rep_info['base_infos']['stage'] += "6A"
-                elif i==7:
-                    rep_info['base_info']+=" 6B"
-                    rep_info['base_infos']['stage'] += "6B"
+                if i in stage_dic:
+                    stage = stage_dic[i]
+                    rep_info['base_info'] += f" {stage}"
+                    rep_info['base_infos']['stage'] += stage
                 rep_info['stage_score'].append(unsigned_int(decodedata, stage_offset) * 10)
                 stage_offsets.append(stage_offset)
                 stage_end = unsigned_int(decodedata, 0x44 + i * 0x4)
@@ -594,18 +592,10 @@ def yycrep_cut(dat):
         for i in range(9):
             stage_offset = unsigned_int(decodedata, 0x20 + i * 0x4)
             if stage_offset != 0:
-                if i==3:
-                    rep_info['base_info']+=" 4A"
-                    rep_info['base_infos']['stage'] += "4A"
-                elif i==4:
-                    rep_info['base_info']+=" 4B"
-                    rep_info['base_infos']['stage'] += "4B"
-                elif i==6:
-                    rep_info['base_info']+=" 6A"
-                    rep_info['base_infos']['stage'] += "6A"
-                elif i==7:
-                    rep_info['base_info']+=" 6B"
-                    rep_info['base_infos']['stage'] += "6B"
+                if i in stage_dic:
+                    stage = stage_dic[i]
+                    rep_info['base_info'] += f" {stage}"
+                    rep_info['base_infos']['stage'] += stage
                 rep_info['stage_score'].append(unsigned_int(decodedata, stage_offset) * 10)
                 stage_offsets.append(stage_offset)
 
@@ -637,12 +627,13 @@ def yycrep_cut(dat):
             total_frame_count+=1
             # 检测 z x c shift
             left_hand_flag = unsigned_int(decodedata, start + j * 2) & 0xf
-            if left_hand_flag == 1:
-                rep_info['z_frame'].append(total_frame_count)
-            if left_hand_flag == 2:
-                rep_info['x_frame'].append(total_frame_count)
-            if left_hand_flag == 4:
-                rep_info['shift_frame'].append(total_frame_count)
+            frame_dic = {
+                1: 'z_frame',
+                2: 'x_frame',
+                4: 'shift_frame'
+            }
+            if left_hand_flag in frame_dic:
+                rep_info[frame_dic[left_hand_flag]].append(total_frame_count)
         rep_info['screen_action'].append(''.join(skey))
         rep_info['keyboard_action'].append(kkey)
 
@@ -697,7 +688,7 @@ def hyzrep_cut(dat):
     chars = ("Reimu", "Marisa", "Sakuya", "Youmu", "Reisen", "Cirno", "Lyrica", "Mystia", "Tewi", "Yuka", "Aya", "Medicine", "Komachi", "Sikieiki", "Marlin", "Lunasa")
     levels = ("Easy", "Normal", "Hard", "Lunatic", "Extra")
     modes = ('Story Mode', 'Extra Mode', 'Human vs Human', 'Human vs Com', 'Com vs Human', 'Com vs Com')
-    rep_info['base_info'] = levels[rank] + " " + modes[mode]
+    rep_info['base_info'] = f"{levels[rank]} {modes[mode]}"
     rep_info['base_infos'] = {
         "character": [],
         "shottype": "",
@@ -705,7 +696,6 @@ def hyzrep_cut(dat):
         "stage": modes[mode]
     }
     rep_info['slowrate'] = 0.000
-
     rep_info['stage_score'] = []
     rep_info['screen_action'] = []
     rep_info['keyboard_action'] = []
@@ -720,8 +710,9 @@ def hyzrep_cut(dat):
         stage_offsets.append(stage_start)
         stage_offsets.append(stage_end)
         rep_info['stage_score'].append(unsigned_int(decodedata, stage_start) * 10)
-        rep_info['base_info']+="\n"+chars[decodedata[stage_start+6]]+" vs "+chars[decodedata[stage_end+6]]
-        rep_info['base_infos']['character'].append(chars[decodedata[stage_start+6]]+" vs "+chars[decodedata[stage_end+6]])
+        character = f"{chars[decodedata[stage_start + 6]]} vs {chars[decodedata[stage_end + 6]]}"
+        rep_info['base_info'] = "\n".join([rep_info['base_info'], character])
+        rep_info['base_infos']['character'].append(character)
     else:
         stage_end = unsigned_int(decodedata, 0x48)
 
@@ -730,8 +721,9 @@ def hyzrep_cut(dat):
             if stage_offset != 0:
                 rep_info['stage_score'].append(unsigned_int(decodedata, stage_offset) * 10)
                 ai_stage_offset = unsigned_int(decodedata, 0x48 + i * 0x4)
-                rep_info['base_info'] += "\n" + chars[decodedata[stage_offset + 6]] + " vs " + chars[decodedata[ai_stage_offset + 6]]
-                rep_info['base_infos']['character'].append(chars[decodedata[stage_offset + 6]] + " vs " + chars[decodedata[ai_stage_offset + 6]])
+                character = f"{chars[decodedata[stage_offset + 6]]} vs {chars[decodedata[ai_stage_offset + 6]]}"
+                rep_info['base_info'] = "\n".join([rep_info['base_info'], character])
+                rep_info['base_infos']['character'].append(character)
                 stage_offsets.append(stage_offset)
 
         stage_offsets.append(stage_end)
@@ -759,15 +751,16 @@ def hyzrep_cut(dat):
                 rep_info['keyboard_action'].append(kkey)
                 skey = []
                 kkey = []
-            total_frame_count+=1
+            total_frame_count += 1
             # 检测 z x c shift
             left_hand_flag = unsigned_int(decodedata, start + j * 2) & 0xf
-            if left_hand_flag == 1:
-                rep_info['z_frame'].append(total_frame_count)
-            if left_hand_flag == 2:
-                rep_info['x_frame'].append(total_frame_count)
-            if left_hand_flag == 4:
-                rep_info['shift_frame'].append(total_frame_count)
+            frame_dic = {
+                1: 'z_frame',
+                2: 'x_frame',
+                4: 'shift_frame'
+            }
+            if left_hand_flag in frame_dic:
+                rep_info[frame_dic[left_hand_flag]].append(total_frame_count)
         rep_info['screen_action'].append(''.join(skey))
         rep_info['keyboard_action'].append(kkey)
 
@@ -788,13 +781,9 @@ def hyzrep_cut(dat):
 # 妖妖梦 永夜抄 花映冢
 def filter_constant_frame(frame_list):
     result_frame_list=[]
-    for i in range(len(frame_list)):
-        frame=frame_list[i]
-        if i==0:
+    for i, frame in enumerate(frame_list):
+        if i==0 or (frame!=frame_list[i-1]+1):
             result_frame_list.append(frame)
-        else:
-            if frame!=frame_list[i-1]+1:
-                result_frame_list.append(frame)
     return result_frame_list
 
 def threp_output(info, work):
@@ -976,81 +965,49 @@ def correct_true_frame(llength):
         # 一直加65536，直到能够获取正确的帧数
         return correct_true_frame(llength + 65536)
 
+def process_read_error(work, decodedata):
+    # 解决th13和14文件头一样问题
+    if work == '13':
+        work = '14'
+        try:
+            return threp_output(threp_cut(decodedata, work), work)
+        except:
+            # 庙rep因长度错误被误转换到城
+            work = '13'
+            return threp_output(threp_cut(decodedata, work, True), work)
+    elif work == '14':
+        work = '13'
+        # 解决辉针城单面长度出错再跳转问题
+        try:
+            replay_info2 = threp_output(threp_cut(decodedata, work), work)
+            if check_error(replay_info2, "DDC frame error"):
+                # 再次跳转，并强制保留单面frame长度
+                work = '14'
+                return threp_output(threp_cut(decodedata, work, True), work)
+            # 出现单面长度错误且帧数过短，判断为矫正错误
+            if check_error(replay_info2, "length read error") and replay_info2['frame_count'] < 54000:
+                return threp_output(threp_cut(decodedata, work, True), work)
+            return replay_info2
+        except:
+            # 庙rep因长度错误被误转换到城
+            return threp_output(threp_cut(decodedata, work, True), work)
+    else:
+        try:
+            # 尝试矫正frame长度重试
+            return threp_output(threp_cut(decodedata, work, True), work)
+        except:
+            # 没救了，等死吧
+            raise Exception("Failed to open replay file")
+
 def load(file):
     try:
-        work = 'noob'
         file, buffer, flength = entry(file)
         decodedata, work = threp_decodedata(buffer)
         # 红魔乡/妖妖梦/永夜抄/花映冢
         if work in ['06', '07', '08', '09']:
             return decodedata
         replay_info = threp_output(threp_cut(decodedata, work), work)
-        if len(replay_info['screen_action'])==0:
-            # 解决th13和14文件头一样问题
-            if work=='13':
-                work='14'
-                try:
-                    return threp_output(threp_cut(decodedata, work), work)
-                except:
-                    # 庙rep因长度错误被误转换到城
-                    work='13'
-                    return threp_output(threp_cut(decodedata, work, True), work)
-            elif work=='14':
-                work='13'
-                try:
-                    # 解决辉针城单面长度出错再跳转问题
-                    replay_info2 = threp_output(threp_cut(decodedata, work), work)
-                    if check_error(replay_info2, "DDC frame error"):
-                        # 再次跳转，并强制矫正单面frame长度
-                        work = '14'
-                        return threp_output(threp_cut(decodedata, work, True), work)
-                    # 出现单面长度错误且帧数过短，判断为矫正错误
-                    if check_error(replay_info2, "length read error") and replay_info2['frame_count'] < 54000:
-                        return threp_output(threp_cut(decodedata, work, True), work)
-                    return replay_info2
-                except:
-                    # 庙rep因长度错误被误转换到城
-                    return threp_output(threp_cut(decodedata, work, True), work)
-            else:
-                try:
-                    # 尝试矫正frame长度重试
-                    return threp_output(threp_cut(decodedata, work, True), work)
-                except:
-                    # 没救了，等死吧
-                    raise Exception("Failed when decode replay file")
-        else:
-            return replay_info
-    except Exception as e:
-        # 解决th13和14文件头一样问题
-        if work == '13':
-            work = '14'
-            try:
-                return threp_output(threp_cut(decodedata, work), work)
-            except:
-                # 庙rep因长度错误被误转换到城
-                work = '13'
-                return threp_output(threp_cut(decodedata, work, True), work)
-        elif work == '14':
-            work = '13'
-            # 解决辉针城单面长度出错再跳转问题
-            try:
-                replay_info2 = threp_output(threp_cut(decodedata, work), work)
-                if check_error(replay_info2, "DDC frame error"):
-                    # 再次跳转，并强制保留单面frame长度
-                    work = '14'
-                    return threp_output(threp_cut(decodedata, work, True), work)
-                # 出现单面长度错误且帧数过短，判断为矫正错误
-                if check_error(replay_info2, "length read error") and replay_info2['frame_count'] < 54000:
-                    return threp_output(threp_cut(decodedata, work, True), work)
-                return replay_info2
-            except:
-                # 庙rep因长度错误被误转换到城
-                return threp_output(threp_cut(decodedata, work, True), work)
-        else:
-            try:
-                # 尝试矫正frame长度重试
-                return threp_output(threp_cut(decodedata, work, True), work)
-            except:
-                # 没救了，等死吧
-                raise Exception("Failed to open replay file")
+        return replay_info if not replay_info['screen_action'] else process_read_error(work, decodedata)
+    except:
+        return process_read_error(work, decodedata)
 

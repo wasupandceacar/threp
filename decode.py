@@ -954,17 +954,8 @@ def threp_output(info, work):
 
     return output
 
-def check_DDC_frame_error(replay_info):
-    for error in replay_info["error"]:
-        if error["type"] == "DDC frame error":
-            return True
-    return False
-
-def check_length_read_error(replay_info):
-    for error in replay_info["error"]:
-        if error["type"] == "length read error":
-            return True
-    return False
+def check_error(replay_info, error_str):
+    return error_str in [error["type"] for error in replay_info["error"]]
 
 # 根据长度获取正确的帧数
 def true_frame(llength):
@@ -991,7 +982,7 @@ def load(file):
         file, buffer, flength = entry(file)
         decodedata, work = threp_decodedata(buffer)
         # 红魔乡/妖妖梦/永夜抄/花映冢
-        if work=='06' or work=='07' or work=='08' or work=='09':
+        if work in ['06', '07', '08', '09']:
             return decodedata
         replay_info = threp_output(threp_cut(decodedata, work), work)
         if len(replay_info['screen_action'])==0:
@@ -1009,12 +1000,12 @@ def load(file):
                 try:
                     # 解决辉针城单面长度出错再跳转问题
                     replay_info2 = threp_output(threp_cut(decodedata, work), work)
-                    if check_DDC_frame_error(replay_info2):
+                    if check_error(replay_info2, "DDC frame error"):
                         # 再次跳转，并强制矫正单面frame长度
                         work = '14'
                         return threp_output(threp_cut(decodedata, work, True), work)
                     # 出现单面长度错误且帧数过短，判断为矫正错误
-                    if check_length_read_error(replay_info2) and replay_info2['frame_count'] < 54000:
+                    if check_error(replay_info2, "length read error") and replay_info2['frame_count'] < 54000:
                         return threp_output(threp_cut(decodedata, work, True), work)
                     return replay_info2
                 except:
@@ -1044,12 +1035,12 @@ def load(file):
             # 解决辉针城单面长度出错再跳转问题
             try:
                 replay_info2 = threp_output(threp_cut(decodedata, work), work)
-                if check_DDC_frame_error(replay_info2):
+                if check_error(replay_info2, "DDC frame error"):
                     # 再次跳转，并强制保留单面frame长度
                     work = '14'
                     return threp_output(threp_cut(decodedata, work, True), work)
                 # 出现单面长度错误且帧数过短，判断为矫正错误
-                if check_length_read_error(replay_info2) and replay_info2['frame_count'] < 54000:
+                if check_error(replay_info2, "length read error") and replay_info2['frame_count'] < 54000:
                     return threp_output(threp_cut(decodedata, work, True), work)
                 return replay_info2
             except:

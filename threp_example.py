@@ -2,7 +2,7 @@ from api import THReplay
 
 if __name__ == '__main__':
     # 载入一个replay文件，参数为路径
-    tr = THReplay('rep_tst/th6_01.rpy')
+    tr = THReplay('rep_tst/th14_ud002M.rpy')
 
     # 获取rep基本信息，包含机体，难度，通关情况，字符串
     # etc. Reimu A Normal All
@@ -67,6 +67,3 @@ if __name__ == '__main__':
     # 获取rep中按下Shift键的帧数的list，帧数从1开始数
     # etc. [1495, 1532, 1568]
     print(tr.getShift())
-
-    #载入一个新的replay文件，参数为路径
-    tr.reload_replay('rep_tst/th13_07.rpy')

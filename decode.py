@@ -200,7 +200,7 @@ def hmxrep_cut(dat):
     rep_info['player'] = name.strip().decode('utf-8')
     chars = ("Reimu A", "Reimu B", "Marisa A", "Marisa B")
     levels = ("Easy", "Normal", "Hard", "Lunatic", "Extra")
-    rep_info['base_info'] = chars[char]+" "+levels[rank]
+    rep_info['base_info'] = f"{chars[char]} {levels[rank]}"
     rep_info['base_infos'] = {
         "character": chars[char].split(" ")[0],
         "shottype": chars[char].split(" ")[1],
@@ -230,13 +230,14 @@ def hmxrep_cut(dat):
             frame=unsigned_int(decodedata, replay_offset + i)
             while frame!=9999999:
                 # 检测 z x c shift
-                left_press = unsigned_int(decodedata, replay_offset + i + 0x4) & 0xf
-                if left_press == 1:
-                    rep_info['z_frame'].append(frame)
-                if left_press == 2:
-                    rep_info['x_frame'].append(frame)
-                if left_press == 4:
-                    rep_info['shift_frame'].append(frame)
+                left_hand_flag = unsigned_int(decodedata, replay_offset + i + 0x4) & 0xf
+                frame_dic = {
+                    1: 'z_frame',
+                    2: 'x_frame',
+                    4: 'shift_frame'
+                }
+                if left_hand_flag in frame_dic:
+                    rep_info[frame_dic[left_hand_flag]].append(frame)
                 press=(unsigned_int(decodedata, replay_offset + i + 0x4) >> 4) & 0xf
                 i+=0x8
                 stage_replaydata.append([frame, press])
@@ -406,7 +407,7 @@ def yymrep_cut(dat):
     rep_info['player'] = name.strip().decode()
     chars = ("Reimu A", "Reimu B", "Marisa A", "Marisa B", "Sakuya A", "Sakuya B")
     levels = ("Easy","Normal","Hard","Lunatic","Extra","Phantasm")
-    rep_info['base_info'] = chars[char] + " " + levels[rank]
+    rep_info['base_info'] = f"{chars[char]} {levels[rank]}"
     rep_info['base_infos'] = {
         "character": chars[char].split(" ")[0],
         "shottype": chars[char].split(" ")[1],
@@ -414,7 +415,6 @@ def yymrep_cut(dat):
         "stage": ""
     }
     rep_info['slowrate'] = round(drop, 3)
-
     rep_info['stage_score'] = []
     rep_info['screen_action'] = []
     rep_info['keyboard_action'] = []
@@ -477,12 +477,13 @@ def yymrep_cut(dat):
             total_frame_count+=1
             # 检测 z x c shift
             left_hand_flag = unsigned_int(decodedata, start + j * 4) & 0xf
-            if left_hand_flag == 1:
-                rep_info['z_frame'].append(total_frame_count)
-            if left_hand_flag == 2:
-                rep_info['x_frame'].append(total_frame_count)
-            if left_hand_flag == 4:
-                rep_info['shift_frame'].append(total_frame_count)
+            frame_dic = {
+                1: 'z_frame',
+                2: 'x_frame',
+                4: 'shift_frame'
+            }
+            if left_hand_flag in frame_dic:
+                rep_info[frame_dic[left_hand_flag]].append(total_frame_count)
         rep_info['screen_action'].append(''.join(skey))
         rep_info['keyboard_action'].append(kkey)
 

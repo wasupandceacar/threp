@@ -174,8 +174,6 @@ def oldworkrep_cut(work, data):
 def hmxrep_cut(dat):
     rep_info = {}
 
-    rep_info["buffer"] = dat
-
     decodedata = bytearray(len(dat))
     mask = dat[0x0e]
     for i in range(0x0f):
@@ -194,10 +192,10 @@ def hmxrep_cut(dat):
     rank = decodedata[0x07]
     drop = float(decodedata, 0x2c)
 
-    date = date.strip()
-    date = "20" + date[6:8].decode('utf-8') + "/" + date[0:2].decode('utf-8') + "/" + date[3:5].decode('utf-8')
+    date = date.strip().decode()
+    date = f"20{date[6:8]}/{date[:2]}/{date[3:5]}"
     rep_info['date'] = date.strip()
-    rep_info['player'] = name.strip().decode('utf-8')
+    rep_info['player'] = name.strip().decode()
     chars = ("Reimu A", "Reimu B", "Marisa A", "Marisa B")
     levels = ("Easy", "Normal", "Hard", "Lunatic", "Extra")
     rep_info['base_info'] = f"{chars[char]} {levels[rank]}"

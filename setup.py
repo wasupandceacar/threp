@@ -5,7 +5,7 @@ import sys
 
 setup(
     name="threp",
-    version="2.0.0",
+    version="2.0.0b",
     author="wasupandceacar",
     author_email="wasupandceacar@gmail.com",
     description="decode Touhou Shooting Game's replay files and get the infomation in it",

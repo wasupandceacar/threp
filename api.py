@@ -1,4 +1,4 @@
-from decode import load
+from threp.decode import load
 
 class THReplay:
     def __init__(self, replay_file):

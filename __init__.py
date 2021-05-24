@@ -1,1 +1,1 @@
-from api import THReplay
+from threp.api import THReplay

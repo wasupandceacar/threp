@@ -1,7 +1,7 @@
 import pytest, os
 import numpy as np
 
-from api import THReplay
+from threp.api import THReplay
 
 replays_data = np.load('rep_tst/rep_data.npy', allow_pickle=True).item()
 

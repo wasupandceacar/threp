@@ -1,5 +1,5 @@
-from static import dzz_attr
-from static import week_array
+from threp.static import dzz_attr
+from threp.static import week_array
 
 def raise_unrecog(type, name):
     raise Exception(f"Unrecognized {type} {name}")

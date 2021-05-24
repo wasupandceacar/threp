@@ -1,4 +1,4 @@
-from utils import Ref
+from threp.utils import Ref
 
 def get_bit(buffer, ref_pointer, ref_filter, length):
     result = 0

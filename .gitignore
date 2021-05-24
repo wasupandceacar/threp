@@ -51,3 +51,4 @@ Temporary Items
 *.txt
 encode.py
 generate_tst.py
+!requirements.txt

@@ -1,4 +1,4 @@
-name: threp
+name: threp build test
 
 on: [push]
 
@@ -28,13 +28,3 @@ jobs:
     - name: Test with pytest
       run: |
         pytest
-    - name: Build and publish
-      env:
-        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-      run: |
-        mkdir threp
-        cp {__init__.py,api.py,common.py,decode.py,static.py,type.py,utils.py} threp
-        cp README.md README.rst
-        python setup.py sdist bdist_wheel
-        twine upload dist/*

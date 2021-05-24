@@ -1,4 +1,6 @@
-![threp](https://github.com/wasupandceacar/threp/actions/workflows/main.yml/badge.svg)
+![build](https://github.com/wasupandceacar/threp/actions/workflows/build.yml/badge.svg)
+
+![pypi](https://github.com/wasupandceacar/threp/actions/workflows/pypi.yml/badge.svg)
 
 一、介绍
 ---------

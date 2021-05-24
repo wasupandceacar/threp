@@ -1,4 +1,4 @@
-name: upload threp to pypi
+name: Install via pip!
 
 on:
   push:

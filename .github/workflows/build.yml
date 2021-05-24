@@ -1,4 +1,4 @@
-name: threp build test
+name: Build threp
 
 on: [push]
 

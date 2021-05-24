@@ -1,6 +1,9 @@
 name: upload threp to pypi
 
-on: [push]
+on:
+  push:
+    paths:
+      - 'setup.py'
 
 jobs:
   build:

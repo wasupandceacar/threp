@@ -1,4 +1,5 @@
-import pytest, os
+import pytest
+import os
 import numpy as np
 
 from threp.api import THReplay

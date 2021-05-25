@@ -1,8 +1,8 @@
 from threp.static import dzz_attr
 from threp.static import week_array
 
-def raise_unrecog(type, name):
-    raise Exception(f"Unrecognized {type} {name}")
+def raise_unrecog(type_, name):
+    raise Exception(f"Unrecognized {type_} {name}")
 
 def th10type(character, ctype, rank, clear):
     if character == 0:

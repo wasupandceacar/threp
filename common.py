@@ -20,7 +20,7 @@ def decompress(buffer, decode, length):
     ref_filter = Ref()
     ref_filter.value = 0x80
     dest = 0
-    dict = [0 for i in range(0x2010)]
+    dic = [0 for i in range(0x2010)]
     while ref_pointer.value < length:
         bits = get_bit(buffer, ref_pointer, ref_filter, 1)
         if ref_pointer.value >= length:
@@ -30,7 +30,7 @@ def decompress(buffer, decode, length):
             if ref_pointer.value >= length:
                 return dest
             decode[dest] = bits
-            dict[dest & 0x1fff] = bits
+            dic[dest & 0x1fff] = bits
             dest += 1
         else:
             bits = get_bit(buffer, ref_pointer, ref_filter, 13)
@@ -42,8 +42,8 @@ def decompress(buffer, decode, length):
                 return dest
             bits += 3
             for i in range(bits):
-                dict[dest & 0x1fff] = dict[index + i]
-                decode[dest] = dict[index + i]
+                dic[dest & 0x1fff] = dic[index + i]
+                decode[dest] = dic[index + i]
                 dest += 1
     return dest
 

@@ -6,7 +6,7 @@ def unsigned_int(_bytes, pointer):
 def unsigned_char(_bytes, pointer):
     return unpack('B', _bytes[pointer:pointer + 1])[0]
 
-def float(_bytes, pointer):
+def float_(_bytes, pointer):
     return unpack('f', _bytes[pointer:pointer + 4])[0]
 
 def bin32(num):

@@ -1,7 +1,7 @@
 from math import ceil, floor
 from time import localtime
 
-from threp.utils import unsigned_int, unsigned_char, float
+from threp.utils import unsigned_int, unsigned_char, float_
 from threp.common import decode, decompress, entry
 from threp.static import work_attr, skeys, kkeys, oldwork_magicnumber_flc
 from threp.type import *
@@ -10,25 +10,23 @@ def threp_decodedata(buffer):
     work_magicnumber = unsigned_int(buffer, 0)
     if work_magicnumber in oldwork_magicnumber_flc:
         return oldworkrep_cut(oldwork_magicnumber_flc[work_magicnumber], buffer)
-    else:
-        is_2hu_replay = False
-        for key, value in work_attr.items():
-            if work_magicnumber == value['magic_number']:
-                is_2hu_replay = True
-                work = key
-        if is_2hu_replay:
-            length = unsigned_int(buffer, 0x1c)
-            dlength = unsigned_int(buffer, 0x20)
-            decodedata = bytearray(dlength)
-            rawdata = bytearray(buffer[0x24:])
-            decode(rawdata, length, work_attr[work]['decode_var1'], work_attr[work]['decode_var2'],
-                   work_attr[work]['decode_var3'])
-            decode(rawdata, length, work_attr[work]['decode_var4'], work_attr[work]['decode_var5'],
-                   work_attr[work]['decode_var6'])
-            decompress(rawdata, decodedata, length)
-            return decodedata, work
-        else:
-            raise Exception("Bad file magic number")
+    is_2hu_replay = False
+    for key, value in work_attr.items():
+        if work_magicnumber == value['magic_number']:
+            is_2hu_replay = True
+            work = key
+    if is_2hu_replay:
+        length = unsigned_int(buffer, 0x1c)
+        dlength = unsigned_int(buffer, 0x20)
+        decodedata = bytearray(dlength)
+        rawdata = bytearray(buffer[0x24:])
+        decode(rawdata, length, work_attr[work]['decode_var1'], work_attr[work]['decode_var2'],
+               work_attr[work]['decode_var3'])
+        decode(rawdata, length, work_attr[work]['decode_var4'], work_attr[work]['decode_var5'],
+               work_attr[work]['decode_var6'])
+        decompress(rawdata, decodedata, length)
+        return decodedata, work
+    raise Exception("Bad file magic number")
 
 def threp_cut(decodedata, work, frameignore = False):
     info = {'stages': {}, 'stage': None,
@@ -57,7 +55,7 @@ def threp_cut(decodedata, work, frameignore = False):
     else:
         info['player'] = "".join(chr(unsigned_char(decodedata, i)) for i in range(8)).strip()
 
-    info['slowrate']=round(float(decodedata, work_attr[work]['slowrate']), 2)
+    info['slowrate']=round(float_(decodedata, work_attr[work]['slowrate']), 2)
     info['date'] = f"{date[0]}/{date[1]:02d}/{date[2]:02d} {date[3]:02d}:{date[4]:02d}"
 
     stagedata = work_attr[work]['stagedata']
@@ -81,7 +79,7 @@ def threp_cut(decodedata, work, frameignore = False):
                 if frameignore:
                     try:
                         true_frame(llength)
-                    except:
+                    except Exception:
                         # 长度再次出错
                         correct_true_frame(llength)
                         # 忽略帧数，强制保留单面长度
@@ -169,7 +167,7 @@ def hmxrep_cut(dat):
     name = decodedata[0x19:0x19 + 8]
     char = decodedata[0x06]
     rank = decodedata[0x07]
-    drop = float(decodedata, 0x2c)
+    drop = float_(decodedata, 0x2c)
 
     date = date.strip().decode()
     date = f"20{date[6:8]}/{date[:2]}/{date[3:5]}"
@@ -378,7 +376,7 @@ def yymrep_cut(dat):
     name = decodedata[0x5e:0x5e+8]
     char = decodedata[0x56]
     rank = decodedata[0x57]
-    drop = float(decodedata, 0xcc)
+    drop = float_(decodedata, 0xcc)
 
     rep_info['date'] = date.strip().decode()
     rep_info['player'] = name.strip().decode()
@@ -509,7 +507,7 @@ def yycrep_cut(dat):
     name = decodedata[0x72:0x72 + 8]
     char = decodedata[0x6a]
     rank = decodedata[0x6b]
-    drop = float(decodedata, 0x118)
+    drop = float_(decodedata, 0x118)
 
     rep_info['date'] = date.strip().decode()
     rep_info['player'] = name.strip().decode()
@@ -929,17 +927,16 @@ def true_frame(llength):
     frame = floor(llength / (6 + 1/30))
     if frame * 6 + ceil(frame / 30) == llength:
         return frame
-    else:
-        # 暴搜，，，
-        for i in range(frame-10, frame+10):
-            if i * 6 + ceil(i / 30) == llength:
-                return i
-        raise Exception("Can't correct the frame length")
+    # 暴搜，，，
+    for i in range(frame - 10, frame + 10):
+        if i * 6 + ceil(i / 30) == llength:
+            return i
+    raise Exception("Can't correct the frame length")
 
 def correct_true_frame(llength):
     try:
         return true_frame(llength)
-    except:
+    except Exception:
         # 一直加65536，直到能够获取正确的帧数
         return correct_true_frame(llength + 65536)
 
@@ -949,7 +946,7 @@ def process_read_error(work, decodedata):
         work = '14'
         try:
             return threp_output(threp_cut(decodedata, work), work)
-        except:
+        except Exception:
             # 庙rep因长度错误被误转换到城
             work = '13'
             return threp_output(threp_cut(decodedata, work, True), work)
@@ -966,14 +963,14 @@ def process_read_error(work, decodedata):
             if check_error(replay_info2, "length read error") and replay_info2['frame_count'] < 54000:
                 return threp_output(threp_cut(decodedata, work, True), work)
             return replay_info2
-        except:
+        except Exception:
             # 庙rep因长度错误被误转换到城
             return threp_output(threp_cut(decodedata, work, True), work)
     else:
         try:
             # 尝试矫正frame长度重试
             return threp_output(threp_cut(decodedata, work, True), work)
-        except:
+        except Exception:
             # 没救了，等死吧
             raise Exception("Failed to open replay file")
 
@@ -986,6 +983,5 @@ def load(file):
             return decodedata
         replay_info = threp_output(threp_cut(decodedata, work), work)
         return replay_info if not replay_info['screen_action'] else process_read_error(work, decodedata)
-    except:
+    except Exception:
         return process_read_error(work, decodedata)
-

@@ -52,21 +52,15 @@ def threp_cut(decodedata, work, frameignore = False):
     info['clear'] = clear
 
     if work=='95':
-        for i in range(7, 15):
-            info['player'] += chr(unsigned_char(decodedata, i))
-        info['player'] = info['player'].strip()
+        info['player'] = "".join(chr(unsigned_char(decodedata, i)) for i in range(7, 15)).strip()
         info['character'] = 0
     else:
-        for i in range(8):
-            info['player'] += chr(unsigned_char(decodedata, i))
-        info['player'] = info['player'].strip()
+        info['player'] = "".join(chr(unsigned_char(decodedata, i)) for i in range(8)).strip()
 
     info['slowrate']=round(float(decodedata, work_attr[work]['slowrate']), 2)
-
-    info['date']=str(date[0])+"/"+str(date[1]).zfill(2)+"/"+str(date[2]).zfill(2)+" "+str(date[3]).zfill(2)+":"+str(date[4]).zfill(2)
+    info['date'] = f"{date[0]}/{date[1]:02d}/{date[2]:02d} {date[3]:02d}:{date[4]:02d}"
 
     stagedata = work_attr[work]['stagedata']
-
     stagedata_t = work_attr[work]['stagedata'] + work_attr[work]['stagedata_offset']
 
     score = list(range(6))
@@ -85,25 +79,21 @@ def threp_cut(decodedata, work, frameignore = False):
                 pass
             else:
                 if frameignore:
-                    tmp_frame = frame
                     try:
-                        frame = true_frame(llength)
+                        true_frame(llength)
                     except:
                         # 长度再次出错
-                        frame = correct_true_frame(llength)
+                        correct_true_frame(llength)
                         # 忽略帧数，强制保留单面长度
                         info['error'].append({'type': "length so short error",
-                                              'message': str(i) + "面，读取到的单面长度：" + str(
-                                                  llength) + "，判断为长度出错，尝试自动补正"})
+                                              'message': f"{i}面，读取到的单面长度：{llength}，判断为长度出错，尝试自动补正"})
                     # 忽略帧数，强制保留单面长度
                     info['error'].append({'type': "frame read error",
-                                          'message': str(i) + "面，读取到的单面帧数：" + str(tmp_frame) + "，读取到的单面长度：" + str(
-                                              llength) + "，帧数计算出的单面长度：" + str(tmp_frame * 6 + ceil(tmp_frame / 30)) + "，判断为单面帧数出错"})
+                                          'message': f"{i}面，读取到的单面帧数：{frame}，读取到的单面长度：{llength}，帧数计算出的单面长度：{frame * 6 + ceil(frame / 30)}，判断为单面帧数出错"})
                 else:
                     # rep单面长度出错
                     info['error'].append({'type': "length read error",
-                                          'message': str(i) + "面，读取到的单面帧数：" + str(frame) + "，读取到的单面长度：" + str(
-                                              llength) + "，帧数计算出的单面长度：" + str(frame * 6 + ceil(frame / 30)) + "，判断为单面长度出错"})
+                                          'message': f"{i}面，读取到的单面帧数：{frame}，读取到的单面长度：{llength}，帧数计算出的单面长度：{frame * 6 + ceil(frame / 30)}，判断为单面长度出错"})
                     llength = frame * 6 + ceil(frame / 30)
             stagedata_t += llength + work_attr[work]['replaydata_offset']
             stagedata += work_attr[work]['replaydata_offset'] + llength
@@ -113,9 +103,8 @@ def threp_cut(decodedata, work, frameignore = False):
     stagedata = work_attr[work]['stagedata'] + work_attr[work]['stagedata_offset']
 
     for l in range(stage):
-        stage_info = {'score': None, 'frame': None, 'llength': None, 'faith': None,
-                      'bin': {'header': None, 'replay': None, 'tail': None},
-                      'index': {'header': None, 'replay': None, 'tail': None}}
+        stage_info = {'score': None, 'frame': None,
+                      'replay': {}}
 
         replaydata = stagedata + work_attr[work]['replaydata_offset']
         frame = unsigned_int(decodedata, stagedata + 0x4)
@@ -132,11 +121,7 @@ def threp_cut(decodedata, work, frameignore = False):
             else:
                 if frameignore:
                     # 忽略帧数，强制保留单面长度
-                    try:
-                        frame = true_frame(llength)
-                    except:
-                        # 长度再次出错
-                        frame = correct_true_frame(llength)
+                    frame = correct_true_frame(llength)
                     perframe = 6
                 else:
                     # rep单面长度出错
@@ -145,13 +130,7 @@ def threp_cut(decodedata, work, frameignore = False):
 
         stage_info['score'] = score[l]
         stage_info['frame'] = frame
-        stage_info['llength'] = llength
-        stage_info['bin']['header'] = decodedata[stagedata: replaydata]
-        stage_info['bin']['replay'] = decodedata[replaydata: (replaydata + (frame * perframe))]
-        stage_info['bin']['tail'] = decodedata[(replaydata + (frame * perframe)): (replaydata + llength)]
-        stage_info['index']['header'] = (stagedata, replaydata)
-        stage_info['index']['replay'] = (replaydata, (replaydata + (frame * perframe)))
-        stage_info['index']['tail'] = ((replaydata + (frame * perframe)), (replaydata + llength))
+        stage_info['replay'] = decodedata[replaydata: (replaydata + (frame * perframe))]
 
         info['stages'][l] = stage_info
 
@@ -828,8 +807,8 @@ def threp_output(info, work):
         "rank": rank,
         "stage": clear
     }
-    output['stage_score']=[]
-    output['player']=info['player']
+    output['stage_score'] = []
+    output['player'] = info['player']
     output['slowrate'] = info['slowrate']
     output['date'] = info['date']
     output['error'] = info['error']
@@ -857,7 +836,7 @@ def threp_output(info, work):
     if work=='125':
         for l in range(stage):
             stage_info = info['stages'][l]
-            replaydata = stage_info['bin']['replay']
+            replaydata = stage_info['replay']
             replaydata.append(0x00)
             frame = stage_info['frame']
             skey = []
@@ -887,7 +866,7 @@ def threp_output(info, work):
     else:
         for l in range(stage):
             stage_info = info['stages'][l]
-            replaydata = stage_info['bin']['replay']
+            replaydata = stage_info['replay']
             frame = stage_info['frame']
             skey = []
             kkey = []
@@ -955,7 +934,7 @@ def true_frame(llength):
         for i in range(frame-10, frame+10):
             if i * 6 + ceil(i / 30) == llength:
                 return i
-        raise Exception("Cant correct the frame length")
+        raise Exception("Can't correct the frame length")
 
 def correct_true_frame(llength):
     try:

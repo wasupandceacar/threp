@@ -4,6 +4,9 @@ on:
   push:
     paths:
       - 'setup.py'
+  workflow_run:
+    workflows: ["Build threp"]
+    types: [completed]
 
 jobs:
   build:
@@ -12,7 +15,8 @@ jobs:
     strategy:
       matrix:
         python-version: [3.6]
-
+        
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}

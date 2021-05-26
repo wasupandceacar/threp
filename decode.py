@@ -4,7 +4,7 @@ from time import localtime
 from threp.utils import unsigned_int, unsigned_char, float_
 from threp.common import decode, decompress, entry
 from threp.static import work_attr, skeys, kkeys, oldwork_magicnumber_flc
-from threp.type import *
+from threp.type import get_alltypes, format_types
 
 def threp_decodedata(buffer):
     work_magicnumber = unsigned_int(buffer, 0)
@@ -767,39 +767,10 @@ def threp_output(info, work):
 
     output = {}
 
-    if work=='10':
-        character, ctype, rank, clear = th10type(info['character'], info['ctype'], info['rank'], info['clear'])
-    elif work=='11':
-        character, ctype, rank, clear = th11type(info['character'], info['ctype'], info['rank'], info['clear'])
-    elif work=='12':
-        character, ctype, rank, clear = th12type(info['character'], info['ctype'], info['rank'], info['clear'])
-    elif work=='13':
-        character, ctype, rank, clear = th13type(info['character'], info['ctype'], info['rank'], info['clear'])
-    elif work=='14':
-        character, ctype, rank, clear = th14type(info['character'], info['ctype'], info['rank'], info['clear'])
-    elif work=='15':
-        character, ctype, rank, clear = th15type(info['character'], info['ctype'], info['rank'], info['clear'])
-    elif work=='16':
-        character, ctype, rank, clear = th16type(info['character'], info['ctype'], info['rank'], info['clear'])
-    elif work=='128':
-        character, ctype, rank, clear = th128type(info['character'], info['ctype'], info['rank'], info['clear'])
-    elif work=='125':
-        character, ctype, rank, clear = th125type(info['character'], info['ctype'], info['rank'], info['clear'])
-    elif work=='143':
-        character, ctype, rank, clear = th143type(info['character'], info['ctype'], info['rank'], info['clear'])
-    elif work=='95':
-        character, ctype, rank, clear = th95type(info['character'], info['ctype'], info['rank'], info['clear'])
-    elif work=='165':
-        character, ctype, rank, clear = th165type(info['character'], info['ctype'], info['rank'], info['clear'])
-    elif work=='17':
-        character, ctype, rank, clear = th17type(info['character'], info['ctype'], info['rank'], info['clear'])
-    elif work=='18':
-        character, ctype, rank, clear = th18type(info['character'], info['ctype'], info['rank'], info['clear'])
-    else:
-        raise Exception(f"Unrecognized work {work}")
+    character, ctype, rank, clear = get_alltypes(work, info['character'], info['ctype'], info['rank'], info['clear'])
 
-    output['base_info']=' '.join([character, ctype, rank, clear]).strip().replace("  ", " ")
-    output['base_infos']={
+    output['base_info'] = format_types(work, character, ctype, rank, clear)
+    output['base_infos'] = {
         "character": character,
         "shottype": ctype,
         "rank": rank,

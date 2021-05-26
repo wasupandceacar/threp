@@ -10,8 +10,6 @@ oldwork_magicnumber_flc = {
     0x50523954: '09'
 }
 
-dzz_attr=('A1-1','A1-2','A1-3','A2-2','A2-3','B1-1','B1-2','B1-3','B2-2','B2-3','C1-1','C1-2','C1-3','C2-2','C2-3','Extra','All','All','All','All','All','All','All')
-
 week_array=("Sun.", "Mon.", "Tues.", "Wed.", "Thrs.", "Fri.", "Sat.")
 
 work_attr_array={
@@ -42,23 +40,89 @@ for key, value in work_attr_array.items():
     for idx, attr_key in enumerate(work_attr_key):
         work_attr[key][attr_key] = value[idx]
 
-for key, value in work_attr_array.items():
-    work_attr[key]['magic_number'] = value[0]
-    work_attr[key]['stage'] = value[1]
-    work_attr[key]['character'] = value[2]
-    work_attr[key]['ctype'] = value[3]
-    work_attr[key]['rank'] = value[4]
-    work_attr[key]['clear'] = value[5]
-    work_attr[key]['stagedata'] = value[6]
-    work_attr[key]['replaydata_offset'] = value[7]
-    work_attr[key]['totalscoredata'] = value[8]
-    work_attr[key]['decode_var1'] = value[9]
-    work_attr[key]['decode_var2'] = value[10]
-    work_attr[key]['decode_var3'] = value[11]
-    work_attr[key]['decode_var4'] = value[12]
-    work_attr[key]['decode_var5'] = value[13]
-    work_attr[key]['decode_var6'] = value[14]
-    work_attr[key]['stagedata_offset'] = value[15]
-    work_attr[key]['score_rate'] = value[16]
-    work_attr[key]['slowrate'] = value[17]
-    work_attr[key]['date'] = value[18]
+types_dic = {
+    '10': {
+        'character': ["Reimu", "Marisa"],
+        'ctype': ["A", "B", "C"],
+        'rank': ["Easy", "Normal", "Hard", "Lunatic", "Extra"],
+        'clear': [f"Stage {i}" for i in range(7)] + ["Extra", "All"]
+    },
+    '11': {
+        'character': ["Reimu", "Marisa"],
+        'ctype': ["A", "B", "C"],
+        'rank': ["Easy", "Normal", "Hard", "Lunatic", "Extra"],
+        'clear': [f"Stage {i}" for i in range(7)] + ["Extra", "All"]
+    },
+    '12': {
+        'character': ["Reimu", "Marisa", "Sanae"],
+        'ctype': ["A", "B"],
+        'rank': ["Easy", "Normal", "Hard", "Lunatic", "Extra"],
+        'clear': [f"Stage {i}" for i in range(7)] + ["Extra", "All"]
+    },
+    '13': {
+        'character': ["Reimu", "Marisa", "Sanae", "Youmu"],
+        'ctype': [""],
+        'rank': ["Easy", "Normal", "Hard", "Lunatic", "Extra", "overdrive"],
+        'clear': [f"Stage {i}" for i in range(7)] + ["Extra", "All"]
+    },
+    '14': {
+        'character': ["Reimu", "Marisa", "Sakuya"],
+        'ctype': ["A", "B"],
+        'rank': ["Easy", "Normal", "Hard", "Lunatic", "Extra"],
+        'clear': [f"Stage {i}" for i in range(7)] + ["Extra", "All"]
+    },
+    '15': {
+        'character': ["Reimu", "Marisa", "Sanae", "Reisen"],
+        'ctype': [""],
+        'rank': ["Easy", "Normal", "Hard", "Lunatic", "Extra"],
+        'clear': [f"Stage {i}" for i in range(7)] + ["Extra", "All"]
+    },
+    '16': {
+        'character': ["Reimu", "Cirno", "Aya", "Marisa"],
+        'ctype': ["Spring", "Summer", "Autumn", "Winter", "Full"],
+        'rank': ["Easy", "Normal", "Hard", "Lunatic", "Extra"],
+        'clear': [f"Stage {i}" for i in range(7)] + ["Extra", "All"]
+    },
+    '128': {
+        'character': ["A1", "A2", "B1", "B2", "C1", "C2", "Extra"],
+        'ctype': [""],
+        'rank': ["Easy", "Normal", "Hard", "Lunatic", "Extra"],
+        'clear': ['dummy', 'A1-1','A1-2','A1-3','A2-2','A2-3','B1-1','B1-2','B1-3','B2-2','B2-3','C1-1','C1-2','C1-3','C2-2','C2-3','Extra','All','All','All','All','All','All','All']
+    },
+    '125': {
+        'character': ["Aya", "Hatate"],
+        'ctype': [f"{i+1}" for i in range(12)] + ["EX", "SP"],
+        'rank': [f"{i+1}" for i in range(9)],
+        'clear': [""]
+    },
+    '143': {
+        'character': [""],
+        'ctype': [f"{i+1}" for i in range(10)],
+        'rank': [f"{i+1}" for i in range(10)],
+        'clear': [""]
+    },
+    '95': {
+        'character': [""],
+        'ctype': [f"{i+1}" for i in range(10)] + ["EX"],
+        'rank': [f"{i+1}" for i in range(8)],
+        'clear': [""]
+    },
+    '165': {
+        'character': ["Usami"],
+        'ctype': [f"{i+1}" for i in range(6)],
+        'rank': [week_array[i % 7] for i in range(7)] + [f"Inner-{week_array[i % 7]}" for i in range(7, 14)] + [f"Nightmare-{week_array[i % 7]}" for i in range(14, 21)],
+        'clear': [""]
+    },
+    '17': {
+        'character': ["Reimu", "Marisa", "Youmu"],
+        'ctype': ["Wolf", "Otter", "Eagle"],
+        'rank': ["Easy", "Normal", "Hard", "Lunatic", "Extra"],
+        'clear': [f"Stage {i}" for i in range(7)] + ["Extra", "All"]
+    },
+    '18': {
+        'character': ["Reimu", "Marisa", "Sakuya", "Sanae"],
+        'ctype': [""],
+        'rank': ["Easy", "Normal", "Hard", "Lunatic", "Extra"],
+        'clear': [f"Stage {i}" for i in range(7)] + ["Extra", "All"]
+    }
+}

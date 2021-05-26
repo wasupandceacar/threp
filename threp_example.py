@@ -1,8 +1,8 @@
-from api import THReplay
+from threp import THReplay
 
 if __name__ == '__main__':
     # 载入一个replay文件，参数为路径
-    tr = THReplay('rep_tst/th14_ud002M.rpy')
+    tr = THReplay('rep_tst/th10_ud0040.rpy')
 
     # 获取rep基本信息，包含机体，难度，通关情况，字符串
     # etc. Reimu A Normal All

@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.6]
-        
+
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
     - uses: actions/checkout@v2

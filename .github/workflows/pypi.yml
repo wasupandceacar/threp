@@ -27,11 +27,6 @@ jobs:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       run: |
-        mkdir pypitmp
-        cp {setup.py,requirements.txt} pypitmp
-        cp README.md pypitmp/README.rst
-        mkdir pypitmp/threp
-        cp {__init__.py,api.py,common.py,decode.py,static.py,type.py,utils.py} pypitmp/threp
-        cd pypitmp
+        cp README.md README.rst
         python setup.py sdist bdist_wheel
         twine upload dist/*

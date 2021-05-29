@@ -73,11 +73,3 @@ def decode(buffer, length, block_size, base, add):
             tp2 -= 2
             p += 1
         left -= block_size
-
-def entry(file):
-    buffer = bytearray(0x100000)
-    with open(file, 'rb') as f:
-        _buffer = f.read()
-    flength = len(_buffer)
-    buffer[:flength] = _buffer
-    return file, buffer, flength

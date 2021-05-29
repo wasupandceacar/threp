@@ -1,81 +1,68 @@
-from math import ceil, floor
+from math import ceil
 from time import localtime
 
-from threp.utils import unsigned_int, unsigned_char, float_
-from threp.common import decode, decompress, entry
-from threp.static import work_attr, skeys, kkeys, oldwork_magicnumber_flc
+from threp.utils import unsigned_int, unsigned_char, float_, filter_constant_frame, true_frame, correct_true_frame, entry
+from threp.common import decode, decompress
+from threp.static import work_attr, skeys, kkeys, oldwork_magicnumber_flc, newwork_magicnumber_flc
 from threp.type import get_alltypes, format_types
 
 def threp_decodedata(buffer):
     work_magicnumber = unsigned_int(buffer, 0)
     if work_magicnumber in oldwork_magicnumber_flc:
         return oldworkrep_cut(oldwork_magicnumber_flc[work_magicnumber], buffer)
-    is_2hu_replay = False
-    for key, value in work_attr.items():
-        if work_magicnumber == value['magic_number']:
-            is_2hu_replay = True
-            work = key
-    if is_2hu_replay:
+    if work_magicnumber in newwork_magicnumber_flc:
+        work = newwork_magicnumber_flc[work_magicnumber]
+        rep_attr = work_attr[work]
         length = unsigned_int(buffer, 0x1c)
         dlength = unsigned_int(buffer, 0x20)
         decodedata = bytearray(dlength)
         rawdata = bytearray(buffer[0x24:])
-        decode(rawdata, length, work_attr[work]['decode_var1'], work_attr[work]['decode_var2'],
-               work_attr[work]['decode_var3'])
-        decode(rawdata, length, work_attr[work]['decode_var4'], work_attr[work]['decode_var5'],
-               work_attr[work]['decode_var6'])
+        decode(rawdata, length, rep_attr['decode_var1'], rep_attr['decode_var2'],
+               rep_attr['decode_var3'])
+        decode(rawdata, length, rep_attr['decode_var4'], rep_attr['decode_var5'],
+               rep_attr['decode_var6'])
         decompress(rawdata, decodedata, length)
         return decodedata, work
     raise Exception("Bad file magic number")
 
 def threp_cut(decodedata, work, frameignore = False):
-    info = {'stages': {}, 'stage': None,
-            'character': None, 'ctype': None, 'rank': None, 'clear': None, 'player': '', 'slowrate': None, 'date': None, 'error':[]}
+    info = {'stages': {}, 'error':[]}
+
+    rep_attr = work_attr[work]
 
     # f=open('rep161.txt', 'wb')
     # f.write(decodedata)
     # f.close()
 
-    stage = decodedata[work_attr[work]['stage']]
-    character = unsigned_char(decodedata, work_attr[work]['character'])
-    ctype = unsigned_char(decodedata, work_attr[work]['ctype'])
-    rank = unsigned_char(decodedata, work_attr[work]['rank'])
-    clear = unsigned_char(decodedata, work_attr[work]['clear'])
-    date = localtime(unsigned_int(decodedata, work_attr[work]['date']))
+    stage = decodedata[rep_attr['stage']]
 
-    info['stage'] = stage
-    info['character'] = character
-    info['ctype'] = ctype
-    info['rank'] = rank
-    info['clear'] = clear
+    info['character'] = unsigned_char(decodedata, rep_attr['character'])
+    info['ctype'] = unsigned_char(decodedata, rep_attr['ctype'])
+    info['rank'] = unsigned_char(decodedata, rep_attr['rank'])
+    info['clear'] = unsigned_char(decodedata, rep_attr['clear'])
+    info['slowrate'] = round(float_(decodedata, rep_attr['slowrate']), 2)
+    date = localtime(unsigned_int(decodedata, rep_attr['date']))
+    info['date'] = f"{date[0]}/{date[1]:02d}/{date[2]:02d} {date[3]:02d}:{date[4]:02d}"
 
-    if work=='95':
+    if work in ['95']:
         info['player'] = "".join(chr(unsigned_char(decodedata, i)) for i in range(7, 15)).strip()
         info['character'] = 0
     else:
         info['player'] = "".join(chr(unsigned_char(decodedata, i)) for i in range(8)).strip()
 
-    info['slowrate']=round(float_(decodedata, work_attr[work]['slowrate']), 2)
-    info['date'] = f"{date[0]}/{date[1]:02d}/{date[2]:02d} {date[3]:02d}:{date[4]:02d}"
+    stagedata = rep_attr['stagedata']
+    stagedata_t = rep_attr['stagedata'] + rep_attr['stagedata_offset']
 
-    stagedata = work_attr[work]['stagedata']
-    stagedata_t = work_attr[work]['stagedata'] + work_attr[work]['stagedata_offset']
+    score = []
 
-    score = list(range(6))
-
-    if work=='125' or work=='143' or work=='95' or work=='165':
-        score[0] = unsigned_int(decodedata, work_attr[work]['totalscoredata'])
-        info['stage']=1
-        stage=1
+    if work in ['125', '143', '95', '165']:
+        score.append(unsigned_int(decodedata, rep_attr['totalscoredata']))
+        stage = 1
     else:
         for i in range(1, stage):
             frame = unsigned_int(decodedata, stagedata_t + 0x4)
             llength = unsigned_int(decodedata, stagedata_t + 0x8)
-            if frame * 6 + ceil(frame / 30) == llength:
-                pass
-            elif frame * 3 + ceil(frame / 30) == llength:
-                pass
-            else:
+            if (frame * 6 + ceil(frame / 30) != llength) and (frame * 3 + ceil(frame / 30) != llength):
                 if frameignore:
                     try:
                         true_frame(llength)
@@ -93,24 +80,25 @@ def threp_cut(decodedata, work, frameignore = False):
                     info['error'].append({'type': "length read error",
                                           'message': f"{i}面，读取到的单面帧数：{frame}，读取到的单面长度：{llength}，帧数计算出的单面长度：{frame * 6 + ceil(frame / 30)}，判断为单面长度出错"})
                     llength = frame * 6 + ceil(frame / 30)
-            stagedata_t += llength + work_attr[work]['replaydata_offset']
-            stagedata += work_attr[work]['replaydata_offset'] + llength
-            score[i - 1] = unsigned_int(decodedata, stagedata + 0xc)
-        score[stage - 1] = unsigned_int(decodedata, work_attr[work]['totalscoredata'])
+            stagedata_t += (llength + rep_attr['replaydata_offset'])
+            stagedata += (llength + rep_attr['replaydata_offset'])
+            score.append(unsigned_int(decodedata, stagedata + 0xc))
+        score.append(unsigned_int(decodedata, rep_attr['totalscoredata']))
 
-    stagedata = work_attr[work]['stagedata'] + work_attr[work]['stagedata_offset']
+    info['stage'] = stage
 
-    for l in range(stage):
-        stage_info = {'score': None, 'frame': None,
-                      'replay': {}}
+    stagedata = rep_attr['stagedata'] + rep_attr['stagedata_offset']
 
-        replaydata = stagedata + work_attr[work]['replaydata_offset']
+    for i in range(stage):
+        stage_info = {}
+
+        replaydata = stagedata + rep_attr['replaydata_offset']
         frame = unsigned_int(decodedata, stagedata + 0x4)
         llength = unsigned_int(decodedata, stagedata + 0x8)
 
-        if work=='95' or work=='165':
-            perframe=6
-            frame=int(llength/6)-2
+        if work in ['95', '165']:
+            perframe = 6
+            frame = int(llength / 6) - 2
         else:
             if frame * 6 + ceil(frame / 30) == llength:
                 perframe = 6
@@ -120,19 +108,18 @@ def threp_cut(decodedata, work, frameignore = False):
                 if frameignore:
                     # 忽略帧数，强制保留单面长度
                     frame = correct_true_frame(llength)
-                    perframe = 6
                 else:
                     # rep单面长度出错
                     llength = frame * 6 + ceil(frame / 30)
-                    perframe = 6
+                perframe = 6
 
-        stage_info['score'] = score[l]
+        stage_info['score'] = score[i]
         stage_info['frame'] = frame
         stage_info['replay'] = decodedata[replaydata: (replaydata + (frame * perframe))]
 
-        info['stages'][l] = stage_info
+        info['stages'][i] = stage_info
 
-        stagedata += llength + work_attr[work]['replaydata_offset']
+        stagedata += (llength + rep_attr['replaydata_offset'])
 
     return info
 
@@ -752,16 +739,6 @@ def hyzrep_cut(dat):
 
 #endregion
 
-# 过滤按住的连续帧为按下帧
-# 只用于shift z x
-# 妖妖梦 永夜抄 花映冢
-def filter_constant_frame(frame_list):
-    result_frame_list=[]
-    for i, frame in enumerate(frame_list):
-        if i==0 or (frame!=frame_list[i-1]+1):
-            result_frame_list.append(frame)
-    return result_frame_list
-
 def threp_output(info, work):
     stage = info['stage']
 
@@ -776,11 +753,8 @@ def threp_output(info, work):
         "rank": rank,
         "stage": clear
     }
-    output['stage_score'] = []
-    output['player'] = info['player']
-    output['slowrate'] = info['slowrate']
-    output['date'] = info['date']
-    output['error'] = info['error']
+    for key in ['player', 'slowrate', 'date', 'error']:
+        output[key] = info[key]
 
     # 辉针城单面帧数出错，然后因文件头转到神灵庙的bug
     # 由于转到神灵庙，clear情况会读取为0
@@ -788,40 +762,35 @@ def threp_output(info, work):
         # 加入新的error
         output['error'].append({'type': "DDC frame error"})
 
-    for l in range(stage):
-        output['stage_score'].append(info['stages'][l]['score']*work_attr[work]['score_rate'])
+    output['stage_score'] = [info['stages'][i]['score'] * work_attr[work]['score_rate'] for i in range(stage)]
 
-    output['screen_action']=[]
-    output['keyboard_action']=[]
-
+    output['screen_action'] = []
+    output['keyboard_action'] = []
     output['z_frame'] = []
     output['x_frame'] = []
     output['c_frame'] = []
     output['shift_frame'] = []
-
-    total_frame_count=0
+    total_frame_count = 0
 
     # 文花帖DS的rep
-    if work=='125':
+    if work in ['125']:
         for l in range(stage):
+            skey, kkey = [], []
             stage_info = info['stages'][l]
             replaydata = stage_info['replay']
             replaydata.append(0x00)
             frame = stage_info['frame']
-            skey = []
-            kkey = []
             for i in range(frame):
-                if (i % 60 == 0):
+                if i % 60 == 0:
                     skey.append(f'[{(i // 60):<6}]')
                 framekey = unsigned_int(replaydata, i * 3) >> 3 & 0xf
                 skey.append(skeys[framekey])
                 kkey.append(kkeys[framekey])
-                if ((i + 1) % 60 == 0):
+                if (i + 1) % 60 == 0:
                     output['screen_action'].append(''.join(skey))
                     output['keyboard_action'].append(kkey)
-                    skey = []
-                    kkey = []
-                total_frame_count+=1
+                    skey, kkey = [], []
+                total_frame_count += 1
                 # 检测 z x c shift
                 left_hand_flag = unsigned_int(replaydata, i * 3) >> 8 & 0xf
                 if left_hand_flag == 1:
@@ -834,29 +803,26 @@ def threp_output(info, work):
             output['keyboard_action'].append(kkey)
     else:
         for l in range(stage):
+            skey, kkey = [], []
             stage_info = info['stages'][l]
             replaydata = stage_info['replay']
             frame = stage_info['frame']
-            skey = []
-            kkey = []
             for i in range(frame):
-                if (i % 60 == 0):
+                if i % 60 == 0:
                     skey.append(f'[{(i // 60):<6}]')
-                #print("stage", l, hex(i * 6))
                 framekey = unsigned_int(replaydata, i * 6) >> 4 & 0xf
                 skey.append(skeys[framekey])
                 kkey.append(kkeys[framekey])
-                if ((i + 1) % 60 == 0):
+                if (i + 1) % 60 == 0:
                     output['screen_action'].append(''.join(skey))
                     output['keyboard_action'].append(kkey)
-                    skey = []
-                    kkey = []
-                total_frame_count+=1
+                    skey, kkey = [], []
+                total_frame_count += 1
                 # 检测 z x c shift
                 left_hand_flag = unsigned_int(replaydata, i * 6) >> 16 & 0xf
                 c_flag = unsigned_int(replaydata, i * 6) >> 24 & 0xf
                 # 文花帖
-                if work == '95':
+                if work in ['95']:
                     if left_hand_flag == 2:
                         output['z_frame'].append(total_frame_count)
                     if left_hand_flag == 1:
@@ -869,15 +835,15 @@ def threp_output(info, work):
                     if left_hand_flag == 2:
                         output['x_frame'].append(total_frame_count)
                     # 大战争
-                    if work == '128':
+                    if work in ['128']:
                         if c_flag == 2:
                             output['c_frame'].append(total_frame_count)
                     # 神灵庙 辉针城 天邪鬼 绀珠传 天空璋
-                    elif work == '13' or work == '14' or work == '143' or work == '15' or work == '16':
+                    elif work in ['13', '14', '143', '15', '16']:
                         if c_flag == 10:
                             output['c_frame'].append(total_frame_count)
                     # 风神录
-                    if work == '10':
+                    if work in ['10']:
                         if left_hand_flag == 4:
                             output['shift_frame'].append(total_frame_count)
                     else:
@@ -886,30 +852,12 @@ def threp_output(info, work):
             output['screen_action'].append(''.join(skey))
             output['keyboard_action'].append(kkey)
 
-    output['frame_count']=total_frame_count
+    output['frame_count'] = total_frame_count
 
     return output
 
 def check_error(replay_info, error_str):
     return error_str in [error["type"] for error in replay_info["error"]]
-
-# 根据长度获取正确的帧数
-def true_frame(llength):
-    frame = floor(llength / (6 + 1/30))
-    if frame * 6 + ceil(frame / 30) == llength:
-        return frame
-    # 暴搜，，，
-    for i in range(frame - 10, frame + 10):
-        if i * 6 + ceil(i / 30) == llength:
-            return i
-    raise Exception("Can't correct the frame length")
-
-def correct_true_frame(llength):
-    try:
-        return true_frame(llength)
-    except Exception:
-        # 一直加65536，直到能够获取正确的帧数
-        return correct_true_frame(llength + 65536)
 
 def process_read_error(work, decodedata):
     # 解决th13和14文件头一样问题
@@ -947,7 +895,7 @@ def process_read_error(work, decodedata):
 
 def load(file):
     try:
-        file, buffer, flength = entry(file)
+        buffer = entry(file)
         decodedata, work = threp_decodedata(buffer)
         # 红魔乡/妖妖梦/永夜抄/花映冢
         if work in ['06', '07', '08', '09']:

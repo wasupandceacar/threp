@@ -3,7 +3,7 @@ from time import localtime
 
 from threp.utils import unsigned_int, unsigned_char, float_, filter_constant_frame, true_frame, correct_true_frame, entry
 from threp.common import decode, decompress
-from threp.static import work_attr, skeys, kkeys, oldwork_magicnumber_flc, newwork_magicnumber_flc
+from threp.static import work_attr, skeys, kkeys, oldwork_magicnumber_flc, newwork_magicnumber_flc, old_types_dic
 from threp.type import get_alltypes, format_types
 
 def threp_decodedata(buffer):
@@ -150,47 +150,38 @@ def hmxrep_cut(dat):
     # f.write(decodedata)
     # f.close()
 
-    date = decodedata[0x10:0x10 + 8]
-    name = decodedata[0x19:0x19 + 8]
-    char = decodedata[0x06]
-    rank = decodedata[0x07]
-    drop = float_(decodedata, 0x2c)
-
-    date = date.strip().decode()
-    date = f"20{date[6:8]}/{date[:2]}/{date[3:5]}"
-    rep_info['date'] = date.strip()
-    rep_info['player'] = name.strip().decode()
-    chars = ("Reimu A", "Reimu B", "Marisa A", "Marisa B")
-    levels = ("Easy", "Normal", "Hard", "Lunatic", "Extra")
-    rep_info['base_info'] = f"{chars[char]} {levels[rank]}"
+    rep_info['player'] = decodedata[0x19:0x19 + 8].strip().decode()
+    char = old_types_dic['06']['character'][decodedata[0x06]]
+    rank = old_types_dic['06']['rank'][decodedata[0x07]]
+    rep_info['base_info'] = f"{char} {rank}"
     rep_info['base_infos'] = {
-        "character": chars[char].split(" ")[0],
-        "shottype": chars[char].split(" ")[1],
-        "rank": levels[rank],
+        "character": char.split(" ")[0],
+        "shottype": char.split(" ")[1],
+        "rank": rank,
         "stage": ""
     }
-    rep_info['slowrate'] = round(drop, 3)
+    rep_info['slowrate'] = round(float_(decodedata, 0x2c), 3)
+    date = decodedata[0x10:0x10 + 8].strip().decode()
+    rep_info['date'] = f"20{date[6:8]}/{date[:2]}/{date[3:5]}".strip()
 
     rep_info['stage_score'] = []
     rep_info['screen_action'] = []
     rep_info['keyboard_action'] = []
-
     rep_info['z_frame'] = []
     rep_info['x_frame'] = []
     rep_info['c_frame'] = []
     rep_info['shift_frame'] = []
-
     total_frame_count=0
 
     for i in range(7):
-        stage_offset=unsigned_int(decodedata, 0x34 + i * 0x4)
-        if stage_offset!=0:
+        stage_offset = unsigned_int(decodedata, 0x34 + i * 0x4)
+        if stage_offset != 0:
             rep_info['stage_score'].append(unsigned_int(decodedata, stage_offset))
             replay_offset=stage_offset + 0x10
             stage_replaydata=[]
-            i=0x0
-            frame=unsigned_int(decodedata, replay_offset + i)
-            while frame!=9999999:
+            i = 0x0
+            frame = unsigned_int(decodedata, replay_offset + i)
+            while frame != 9999999:
                 # 检测 z x c shift
                 left_hand_flag = unsigned_int(decodedata, replay_offset + i + 0x4) & 0xf
                 frame_dic = {
@@ -200,32 +191,32 @@ def hmxrep_cut(dat):
                 }
                 if left_hand_flag in frame_dic:
                     rep_info[frame_dic[left_hand_flag]].append(frame)
-                press=(unsigned_int(decodedata, replay_offset + i + 0x4) >> 4) & 0xf
-                i+=0x8
+                press = (unsigned_int(decodedata, replay_offset + i + 0x4) >> 4) & 0xf
+                i += 0x8
                 stage_replaydata.append([frame, press])
                 frame = unsigned_int(decodedata, replay_offset + i)
-            kkey=[]
-            skey=[]
+            kkey = []
+            skey = []
             frame_count = 0
             for i in range(len(stage_replaydata)-1):
                 for index in range(stage_replaydata[i][0], stage_replaydata[i+1][0]):
-                    if (frame_count % 60 == 0):
+                    if frame_count % 60 == 0:
                         skey.append(f'[{(frame_count // 60):<6}]')
-                    skey.append(skeys[stage_replaydata[i][1]])
-                    kkey.append(kkeys[stage_replaydata[i][1]])
+                    framekey = stage_replaydata[i][1]
+                    skey.append(skeys[framekey])
+                    kkey.append(kkeys[framekey])
                     if (frame_count + 1) % 60 == 0:
                         rep_info['screen_action'].append(''.join(skey))
                         rep_info['keyboard_action'].append(kkey)
                         skey = []
                         kkey = []
-                    frame_count+=1
+                    frame_count += 1
                     total_frame_count += 1
             rep_info['screen_action'].append(''.join(skey))
             rep_info['keyboard_action'].append(kkey)
 
-    rep_info['error']=[]
-
-    rep_info['frame_count']=total_frame_count
+    rep_info['error'] = []
+    rep_info['frame_count'] = total_frame_count
 
     return rep_info
 
@@ -359,32 +350,23 @@ def yymrep_cut(dat):
     # f.write(decodedata)
     # f.close()
 
-    date = decodedata[0x58:0x58+5]
-    name = decodedata[0x5e:0x5e+8]
-    char = decodedata[0x56]
-    rank = decodedata[0x57]
-    drop = float_(decodedata, 0xcc)
-
-    rep_info['date'] = date.strip().decode()
-    rep_info['player'] = name.strip().decode()
-    chars = ("Reimu A", "Reimu B", "Marisa A", "Marisa B", "Sakuya A", "Sakuya B")
-    levels = ("Easy","Normal","Hard","Lunatic","Extra","Phantasm")
-    rep_info['base_info'] = f"{chars[char]} {levels[rank]}"
+    rep_info['player'] = decodedata[0x5e:0x5e+8].strip().decode()
+    char = old_types_dic['07']['character'][decodedata[0x56]]
+    rank = old_types_dic['07']['rank'][decodedata[0x57]]
+    rep_info['base_info'] = f"{char} {rank}"
     rep_info['base_infos'] = {
-        "character": chars[char].split(" ")[0],
-        "shottype": chars[char].split(" ")[1],
-        "rank": levels[rank],
+        "character": char.split(" ")[0],
+        "shottype": char.split(" ")[1],
+        "rank": rank,
         "stage": ""
     }
-    rep_info['slowrate'] = round(drop, 3)
+    rep_info['slowrate'] = round(float_(decodedata, 0xcc), 3)
+    rep_info['date'] = decodedata[0x58:0x58 + 5].strip().decode()
+
+    is_extra_or_phantasm = (unsigned_int(decodedata, 0x34)!=0)
+    is_onestage = (unsigned_int(decodedata, 0x1c) == 0)
+
     rep_info['stage_score'] = []
-    rep_info['screen_action'] = []
-    rep_info['keyboard_action'] = []
-
-    is_extra_or_phantasm=(unsigned_int(decodedata, 0x34)!=0)
-
-    is_onestage=(unsigned_int(decodedata, 0x1c) == 0)
-
     stage_offsets = []
 
     if is_extra_or_phantasm:
@@ -413,30 +395,31 @@ def yymrep_cut(dat):
 
         stage_offsets.append(stage_end)
 
+    rep_info['screen_action'] = []
+    rep_info['keyboard_action'] = []
     rep_info['z_frame'] = []
     rep_info['x_frame'] = []
     rep_info['c_frame'] = []
     rep_info['shift_frame'] = []
-
-    total_frame_count=0
+    total_frame_count = 0
 
     for i in range(len(stage_offsets)-1):
         start = stage_offsets[i] + 0x28
-        frame = int((stage_offsets[i+1]-stage_offsets[i]-0x28)/4)
+        frame = int((stage_offsets[i+1] - stage_offsets[i] - 0x28) / 4)
         skey = []
         kkey = []
         for j in range(frame):
-            if (j % 60 == 0):
+            if j % 60 == 0:
                 skey.append(f'[{(j // 60):<6}]')
             framekey = unsigned_int(decodedata, start + j * 4) >> 4 & 0xf
             skey.append(skeys[framekey])
             kkey.append(kkeys[framekey])
-            if ((j + 1) % 60 == 0):
+            if (j + 1) % 60 == 0:
                 rep_info['screen_action'].append(''.join(skey))
                 rep_info['keyboard_action'].append(kkey)
                 skey = []
                 kkey = []
-            total_frame_count+=1
+            total_frame_count += 1
             # 检测 z x c shift
             left_hand_flag = unsigned_int(decodedata, start + j * 4) & 0xf
             frame_dic = {
@@ -450,9 +433,7 @@ def yymrep_cut(dat):
         rep_info['keyboard_action'].append(kkey)
 
     rep_info['error'] = []
-
     rep_info['frame_count'] = total_frame_count
-
     rep_info['z_frame'] = filter_constant_frame(rep_info['z_frame'])
     rep_info['x_frame'] = filter_constant_frame(rep_info['x_frame'])
     rep_info['shift_frame'] = filter_constant_frame(rep_info['shift_frame'])
@@ -488,39 +469,26 @@ def yycrep_cut(dat):
     # f.write(mergedecodedata)
     # f.close()
 
-    decodedata=mergedecodedata
+    decodedata = mergedecodedata
 
-    date = decodedata[0x6c:0x6c + 5]
-    name = decodedata[0x72:0x72 + 8]
-    char = decodedata[0x6a]
-    rank = decodedata[0x6b]
-    drop = float_(decodedata, 0x118)
-
-    rep_info['date'] = date.strip().decode()
-    rep_info['player'] = name.strip().decode()
-    chars = ("Rm & Yk", "Ms & Al", "Sk & Rr", "Ym & Yy", "Reimu", "Yukari", "Marisa", "Alice", "Sakuya", "Remilia", "Youmu", "Yuyuko")
-    levels = ("Easy", "Normal", "Hard", "Lunatic", "Extra")
-    spellid=decodedata[0x7c]+256*decodedata[0x7d]
+    rep_info['player'] = decodedata[0x72:0x72 + 8].strip().decode()
+    char = old_types_dic['08']['character'][decodedata[0x6a]]
+    rank = old_types_dic['08']['rank'][ decodedata[0x6b]]
+    spellid = decodedata[0x7c]+256*decodedata[0x7d]
+    rep_info['base_info'] = f"{char} {rank}" if spellid == 65535 else f"{char} Spell No.{spellid + 1}"
     rep_info['base_infos'] = {
-        "character": chars[char],
+        "character": char,
         "shottype": "",
-        "stage": ""
+        "rank": rank if spellid == 65535 else f"Spell No.{spellid + 1}",
+        "stage": "",
     }
-    if spellid!=65535:
-        rep_info['base_info'] = f"{chars[char]} Spell No.{spellid+1}"
-        rep_info['base_infos']['rank'] = f"Spell No.{spellid+1}"
-    else:
-        rep_info['base_info'] = f"{chars[char]} {levels[rank]}"
-        rep_info['base_infos']['rank'] = levels[rank]
-    rep_info['slowrate'] = round(drop, 3)
-    rep_info['stage_score'] = []
-    rep_info['screen_action'] = []
-    rep_info['keyboard_action'] = []
+    rep_info['slowrate'] = round(float_(decodedata, 0x118), 3)
+    rep_info['date'] = decodedata[0x6c:0x6c + 5].strip().decode()
 
     is_extra = (unsigned_int(decodedata, 0x40) != 0)
-
     is_onestage = (unsigned_int(decodedata, 0x20) == 0)
 
+    rep_info['stage_score'] = []
     stage_offsets = []
 
     stage_dic = {
@@ -564,6 +532,8 @@ def yycrep_cut(dat):
 
         stage_offsets.append(stage_end)
 
+    rep_info['screen_action'] = []
+    rep_info['keyboard_action'] = []
     rep_info['z_frame'] = []
     rep_info['x_frame'] = []
     rep_info['c_frame'] = []
@@ -641,27 +611,20 @@ def hyzrep_cut(dat):
 
     decodedata = mergedecodedata
 
-    date = decodedata[0xc4:0xc4 + 8]
-    name = decodedata[0xcd:0xcd + 8]
-    rank = decodedata[0xd7]
-    mode = decodedata[0x1e4]+decodedata[0x1e5]
-
-    rep_info['date'] = date.strip().decode()
-    rep_info['player'] = name.strip().decode()
-    chars = ("Reimu", "Marisa", "Sakuya", "Youmu", "Reisen", "Cirno", "Lyrica", "Mystia", "Tewi", "Yuka", "Aya", "Medicine", "Komachi", "Sikieiki", "Marlin", "Lunasa")
-    levels = ("Easy", "Normal", "Hard", "Lunatic", "Extra")
-    modes = ('Story Mode', 'Extra Mode', 'Human vs Human', 'Human vs Com', 'Com vs Human', 'Com vs Com')
-    rep_info['base_info'] = f"{levels[rank]} {modes[mode]}"
+    rep_info['player'] = decodedata[0xcd:0xcd + 8].strip().decode()
+    chars = old_types_dic['09']['character']
+    rank = old_types_dic['09']['rank'][decodedata[0xd7]]
+    mode = old_types_dic['09']['mode'][decodedata[0x1e4] + decodedata[0x1e5]]
+    rep_info['base_info'] = f"{rank} {mode}"
     rep_info['base_infos'] = {
         "character": [],
         "shottype": "",
-        "rank": levels[rank],
-        "stage": modes[mode]
+        "rank": rank,
+        "stage": mode
     }
     rep_info['slowrate'] = 0.000
+    rep_info['date'] = decodedata[0xc4:0xc4 + 8].strip().decode()
     rep_info['stage_score'] = []
-    rep_info['screen_action'] = []
-    rep_info['keyboard_action'] = []
 
     is_match = (unsigned_int(decodedata, 0x44) != 0)
 
@@ -678,7 +641,6 @@ def hyzrep_cut(dat):
         rep_info['base_infos']['character'].append(character)
     else:
         stage_end = unsigned_int(decodedata, 0x48)
-
         for i in range(9):
             stage_offset = unsigned_int(decodedata, 0x20 + i * 0x4)
             if stage_offset != 0:
@@ -688,15 +650,15 @@ def hyzrep_cut(dat):
                 rep_info['base_info'] = "\n".join([rep_info['base_info'], character])
                 rep_info['base_infos']['character'].append(character)
                 stage_offsets.append(stage_offset)
-
         stage_offsets.append(stage_end)
 
+    rep_info['screen_action'] = []
+    rep_info['keyboard_action'] = []
     rep_info['z_frame'] = []
     rep_info['x_frame'] = []
     rep_info['c_frame'] = []
     rep_info['shift_frame'] = []
-
-    total_frame_count=0
+    total_frame_count = 0
 
     for i in range(len(stage_offsets) - 1):
         start = stage_offsets[i] + 0x20
@@ -704,12 +666,12 @@ def hyzrep_cut(dat):
         skey = []
         kkey = []
         for j in range(frame):
-            if (j % 60 == 0):
+            if j % 60 == 0:
                 skey.append(f'[{(j // 60):<6}]')
             framekey = unsigned_int(decodedata, start + j * 2) >> 4 & 0xf
             skey.append(skeys[framekey])
             kkey.append(kkeys[framekey])
-            if ((j + 1) % 60 == 0):
+            if (j + 1) % 60 == 0:
                 rep_info['screen_action'].append(''.join(skey))
                 rep_info['keyboard_action'].append(kkey)
                 skey = []
@@ -728,9 +690,7 @@ def hyzrep_cut(dat):
         rep_info['keyboard_action'].append(kkey)
 
     rep_info['error'] = []
-
     rep_info['frame_count'] = total_frame_count
-
     rep_info['z_frame'] = filter_constant_frame(rep_info['z_frame'])
     rep_info['x_frame'] = filter_constant_frame(rep_info['x_frame'])
     rep_info['shift_frame'] = filter_constant_frame(rep_info['shift_frame'])

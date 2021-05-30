@@ -10,7 +10,25 @@ oldwork_magicnumber_flc = {
     0x50523954: '09'
 }
 
-week_array=("Sun.", "Mon.", "Tues.", "Wed.", "Thrs.", "Fri.", "Sat.")
+old_types_dic = {
+    '06': {
+        'character': ("Reimu A", "Reimu B", "Marisa A", "Marisa B"),
+        'rank': ("Easy", "Normal", "Hard", "Lunatic", "Extra")
+    },
+    '07': {
+        'character': ("Reimu A", "Reimu B", "Marisa A", "Marisa B", "Sakuya A", "Sakuya B"),
+        'rank': ("Easy", "Normal", "Hard", "Lunatic", "Extra", "Phantasm")
+    },
+    '08': {
+        'character': ("Rm & Yk", "Ms & Al", "Sk & Rr", "Ym & Yy", "Reimu", "Yukari", "Marisa", "Alice", "Sakuya", "Remilia", "Youmu", "Yuyuko"),
+        'rank': ("Easy", "Normal", "Hard", "Lunatic", "Extra")
+    },
+    '09': {
+        'character': ("Reimu", "Marisa", "Sakuya", "Youmu", "Reisen", "Cirno", "Lyrica", "Mystia", "Tewi", "Yuka", "Aya", "Medicine", "Komachi", "Sikieiki", "Marlin", "Lunasa"),
+        'rank': ("Easy", "Normal", "Hard", "Lunatic", "Extra"),
+        'mode': ('Story Mode', 'Extra Mode', 'Human vs Human', 'Human vs Com', 'Com vs Human', 'Com vs Com')
+    }
+}
 
 work_attr_array={
            '10':[0x72303174, 0x4c, 0x50, 0x54, 0x58, 0x5c, 0x64, 0x1c4, 0x10, 0x400, 0xaa, 0xe1, 0x80, 0x3d, 0x7a, 0x0, 10, 0x48, 0xc],
@@ -41,6 +59,8 @@ for key, value in work_attr_array.items():
         work_attr[key][attr_key] = value[idx]
 
 newwork_magicnumber_flc = dict((value['magic_number'], key) for key, value in work_attr.items())
+
+week_array=("Sun.", "Mon.", "Tues.", "Wed.", "Thrs.", "Fri.", "Sat.")
 
 types_dic = {
     '10': {

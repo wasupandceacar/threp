@@ -49,8 +49,9 @@ def true_frame(llength):
     raise Exception("Can't correct the frame length")
 
 def correct_true_frame(llength):
-    try:
-        return true_frame(llength)
-    except Exception:
-        # 一直加65536，直到能够获取正确的帧数
-        return correct_true_frame(llength + 65536)
+    while True:
+        try:
+            return true_frame(llength)
+        except Exception:
+            # 一直加65536，直到能够获取正确的帧数
+            llength += 65536

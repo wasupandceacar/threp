@@ -21,7 +21,7 @@ threp 用于解析东方 project 系列游戏的 replay 文件，即游戏回放
 	from threp import THReplay
  
     # 载入一个 replay 文件，参数为路径
-    tr=THReplay('th14_03.rpy')
+    tr = THReplay('th14_03.rpy')
 
     # 获取 replay 基本信息，包含机体，难度，通关情况，字符串
     # etc. Reimu A normal all

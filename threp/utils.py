@@ -17,26 +17,22 @@ def bin32(num):
 def bin16(num):
     return f'{bin(num)[2:]:>16}'.replace(' ', '0')
 
-class Ref(object):
-    pass
+class Ref:
+    def __init__(self, value):
+        self.value = value
 
 def entry(file):
     buffer = bytearray(0x100000)
     with open(file, 'rb') as f:
         _buffer = f.read()
-    flength = len(_buffer)
-    buffer[:flength] = _buffer
+        buffer[:len(_buffer)] = _buffer
     return buffer
 
 # 过滤按住的连续帧为按下帧
 # 只用于shift z x
 # 妖妖梦 永夜抄 花映冢
 def filter_constant_frame(frame_list):
-    result_frame_list = []
-    for i, frame in enumerate(frame_list):
-        if i == 0 or (frame != frame_list[i-1]+1):
-            result_frame_list.append(frame)
-    return result_frame_list
+    return [frame for i, frame in enumerate(frame_list) if i == 0 or (frame != frame_list[i-1]+1)]
 
 # 根据长度获取正确的帧数
 def true_frame(llength):

@@ -15,12 +15,10 @@ def get_bit(buffer, ref_pointer, ref_filter, length):
     return result
 
 def decompress(buffer, decode, length):
-    ref_pointer = Ref()
-    ref_pointer.value = 0
-    ref_filter = Ref()
-    ref_filter.value = 0x80
+    ref_pointer = Ref(0)
+    ref_filter = Ref(0x80)
     dest = 0
-    dic = [0 for i in range(0x2010)]
+    dic = [0] * 0x2010
     while ref_pointer.value < length:
         bits = get_bit(buffer, ref_pointer, ref_filter, 1)
         if ref_pointer.value >= length:

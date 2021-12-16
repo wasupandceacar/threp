@@ -148,3 +148,6 @@ types_dic = {
         'clear': [f"Stage {i}" for i in range(7)] + ["Extra", "All"]
     }
 }
+
+frame_search_range = 10
+frame_correct_retry = 23412

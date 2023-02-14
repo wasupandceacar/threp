@@ -3,7 +3,7 @@ from threp.utils import Ref
 def get_bit(buffer, ref_pointer, ref_filter, length):
     result = 0
     current = buffer[ref_pointer.value]
-    for i in range(length):
+    for _ in range(length):
         result <<= 1
         if current & ref_filter.value:
             result |= 0x1
@@ -59,13 +59,13 @@ def decode(buffer, length, block_size, base, add):
         tp1 = p + block_size - 1
         tp2 = p + block_size - 2
         hf = (block_size + (block_size & 0x1)) // 2
-        for i in range(hf):
+        for _ in range(hf):
             buffer[tp1] = tbuf[p] ^ base
             base = (base + add) % 0x100
             tp1 -= 2
             p += 1
         hf = block_size // 2
-        for i in range(hf):
+        for _ in range(hf):
             buffer[tp2] = tbuf[p] ^ base
             base = (base + add) % 0x100
             tp2 -= 2

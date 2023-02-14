@@ -58,7 +58,9 @@ for key, value in work_attr_array.items():
     for idx, attr_key in enumerate(work_attr_key):
         work_attr[key][attr_key] = value[idx]
 
-newwork_magicnumber_flc = dict((value['magic_number'], key) for key, value in work_attr.items())
+newwork_magicnumber_flc = {
+    value['magic_number']: key for key, value in work_attr.items()
+}
 
 week_array=("Sun.", "Mon.", "Tues.", "Wed.", "Thrs.", "Fri.", "Sat.")
 

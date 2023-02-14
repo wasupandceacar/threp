@@ -26,8 +26,6 @@ def threp_decodedata(buffer):
     raise Exception("Bad file magic number")
 
 def threp_cut(decodedata, work, frameignore = False):
-    info = {'stages': {}, 'error':[]}
-
     rep_attr = work_attr[work]
 
     # f=open('rep161.txt', 'wb')
@@ -36,7 +34,11 @@ def threp_cut(decodedata, work, frameignore = False):
 
     stage = decodedata[rep_attr['stage']]
 
-    info['character'] = unsigned_char(decodedata, rep_attr['character'])
+    info = {
+        'stages': {},
+        'error': [],
+        'character': unsigned_char(decodedata, rep_attr['character']),
+    }
     info['ctype'] = unsigned_char(decodedata, rep_attr['ctype'])
     info['rank'] = unsigned_char(decodedata, rep_attr['rank'])
     info['clear'] = unsigned_char(decodedata, rep_attr['clear'])
@@ -56,7 +58,6 @@ def threp_cut(decodedata, work, frameignore = False):
     score = []
 
     if work in ['125', '143', '95', '165']:
-        score.append(unsigned_int(decodedata, rep_attr['totalscoredata']))
         stage = 1
     else:
         for i in range(1, stage):
@@ -83,15 +84,12 @@ def threp_cut(decodedata, work, frameignore = False):
             stagedata_t += (llength + rep_attr['replaydata_offset'])
             stagedata += (llength + rep_attr['replaydata_offset'])
             score.append(unsigned_int(decodedata, stagedata + 0xc))
-        score.append(unsigned_int(decodedata, rep_attr['totalscoredata']))
-
+    score.append(unsigned_int(decodedata, rep_attr['totalscoredata']))
     info['stage'] = stage
 
     stagedata = rep_attr['stagedata'] + rep_attr['stagedata_offset']
 
     for i in range(stage):
-        stage_info = {}
-
         replaydata = stagedata + rep_attr['replaydata_offset']
         frame = unsigned_int(decodedata, stagedata + 0x4)
         llength = unsigned_int(decodedata, stagedata + 0x8)
@@ -99,24 +97,26 @@ def threp_cut(decodedata, work, frameignore = False):
         if work in ['95', '165']:
             perframe = 6
             frame = int(llength / 6) - 2
+        elif frame * 6 + ceil(frame / 30) == llength:
+            perframe = 6
+        elif frame * 3 + ceil(frame / 30) == llength:
+            perframe = 3
         else:
-            if frame * 6 + ceil(frame / 30) == llength:
-                perframe = 6
-            elif frame * 3 + ceil(frame / 30) == llength:
-                perframe = 3
+            if frameignore:
+                # 忽略帧数，强制保留单面长度
+                frame = correct_true_frame(llength)
             else:
-                if frameignore:
-                    # 忽略帧数，强制保留单面长度
-                    frame = correct_true_frame(llength)
-                else:
-                    # rep单面长度出错
-                    llength = frame * 6 + ceil(frame / 30)
-                perframe = 6
+                # rep单面长度出错
+                llength = frame * 6 + ceil(frame / 30)
+            perframe = 6
 
-        stage_info['score'] = score[i]
-        stage_info['frame'] = frame
-        stage_info['replay'] = decodedata[replaydata: (replaydata + (frame * perframe))]
-
+        stage_info = {
+            'score': score[i],
+            'frame': frame,
+            'replay': decodedata[
+                replaydata : (replaydata + (frame * perframe))
+            ],
+        }
         info['stages'][i] = stage_info
 
         stagedata += (llength + rep_attr['replaydata_offset'])
@@ -136,8 +136,6 @@ def oldworkrep_cut(work, data):
 
 # 红魔乡
 def hmxrep_cut(dat):
-    rep_info = {}
-
     decodedata = bytearray(len(dat))
     mask = dat[0x0e]
     for i in range(0x0f):
@@ -146,11 +144,7 @@ def hmxrep_cut(dat):
         decodedata[i] = (dat[i] + 0x100 - mask) & 0xff
         mask = (mask + 0x07) & 0xff
 
-    # f=open('rep6rrrr.txt', 'wb')
-    # f.write(decodedata)
-    # f.close()
-
-    rep_info['player'] = decodedata[0x19:0x19 + 8].strip().decode()
+    rep_info = {'player': decodedata[0x19:0x19 + 8].strip().decode()}
     char = old_types_dic['06']['character'][decodedata[0x06]]
     rank = old_types_dic['06']['rank'][decodedata[0x07]]
     rep_info['base_info'] = f"{char} {rank}"
@@ -199,7 +193,7 @@ def hmxrep_cut(dat):
             skey = []
             frame_count = 0
             for i in range(len(stage_replaydata)-1):
-                for index in range(stage_replaydata[i][0], stage_replaydata[i+1][0]):
+                for _ in range(stage_replaydata[i][0], stage_replaydata[i+1][0]):
                     if frame_count % 60 == 0:
                         skey.append(f'[{(frame_count // 60):<6}]')
                     framekey = stage_replaydata[i][1]
